@@ -1,6 +1,7 @@
 from kivy.app import App
 from modulsKivy import HebrewTextInput
-from extraFunctions import is_sub_str_from_start, get_text_size, pixels_to_relative_size
+from extraFunctions import is_sub_str_from_start, get_text_size, \
+    pixels_to_relative_size, is_hebrew_characters_complete, reverse_string
 from kivy.utils import get_color_from_hex
 from kivy.uix.floatlayout import FloatLayout
 from mishnayotText import brachot_1_1
@@ -24,12 +25,13 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
 
     def on_text(self, instance, value):
         value = value[::-1]
-        print(value)
-        print(self.target_text)
         if not is_sub_str_from_start(value, self.target_text):
             self.text = self.target_text[::-1]
             self.lock(True)
         elif value == self.target_text:
+            self.lock(False)
+        elif is_hebrew_characters_complete(value, self.target_text):
+            self.text = self.target_text[::-1]
             self.lock(False)
 
     def lock(self, is_fail: bool):

@@ -21,6 +21,17 @@ def is_sub_str_from_start(sub: str, org: str) -> bool:
         return True
     return False
 
+def is_hebrew_letter(char: str) -> bool:
+    # Check if the character is in the Hebrew letters Unicode range
+    return 1488 <= ord(char) <= 1514
+
+
+def is_hebrew_characters_complete(sub: str, org: str) -> bool:
+    if sub == org[:-1] and not is_hebrew_letter(org[-1]):
+        return True
+    else:
+        return False
+
 
 def get_text_relative_size(text, font_name, font_size):
     label = Label(text=text, font_name=font_name, font_size=font_size)
@@ -42,7 +53,7 @@ def get_text_size(text, font_name, font_size):
 
 
 if __name__ == '__main__':
-    str1 = "רבי"
+    str1 = "א"
+    str2 = "את"
+    print(is_hebrew_characters_complete(str2, str1))
 
-    print(get_text_relative_size(str1, "Arial.ttf", 15))
-    print(get_text_size(str1, "Arial.ttf", 15))
