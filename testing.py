@@ -1,10 +1,12 @@
 from kivy.app import App
 from modulsKivy import HebrewTextInput
 from extraFunctions import is_sub_str_from_start, get_text_size, \
-    pixels_to_relative_size, is_hebrew_characters_complete, reverse_string
+    pixels_to_relative_size, is_hebrew_characters_complete, string_hebrew_to_matrix, is_hebrew_letter
 from kivy.utils import get_color_from_hex
 from kivy.uix.floatlayout import FloatLayout
 from mishnayotText import brachot_1_1
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
 
 
 class FirstLetterGameHebrewTextInput(HebrewTextInput):
@@ -13,7 +15,7 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
             raise Exception("text length is 0")
         super().__init__(**kwargs)
         self.hint_text = text[0]
-        self.font_size = 25
+        self.font_size = 35
         self.hint_text_color = get_color_from_hex('#0000FF')
         self.foreground_color = get_color_from_hex('#0000FF')
         self.target_text = text
@@ -51,19 +53,27 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
 
 
 class FirstLetterGameHebrew(FloatLayout):
-    def __init__(self, str_matrix, **kwargs):
+    def __init__(self, given_str: str, **kwargs):
         """
         First game letter widget
-        :param str_matrix: given in the following form:
-        str_matrix = [
-            [str4, str3, str2, str1],
-            [str8, str7, str6, str5]
-        ]
+        :param given_str: str in hebrew that can be multiline as follows:
+        given_str = '''
+            מאימתי קורין את שמע בערבית?
+            משעה שהכהנים נכנסים לאכול בתרומתן.
+        '''
         etc.
         :param kwargs: kwargs
         """
 
         super().__init__(**kwargs)
+
+        # transforming given_str into a str_matrix that will look as follows:
+        # str_matrix = [
+        #    [word4, word3, word2, word1],
+        #    [word8, word7, word6, word5]
+        # ]
+        #
+        str_matrix = string_hebrew_to_matrix(given_str)
 
         # creating self.widgets from str_matrix
         reversed_widgets_matrix = []
@@ -86,6 +96,21 @@ class FirstLetterGameHebrew(FloatLayout):
         for line in reversed(reversed_widgets_matrix):
             self.widgets.append(line)
 
+        # calc size of max line and col for scroll
+        max_width_line = 0
+        col_height = 0
+        for line in self.widgets:
+            col_height += line[0].height
+            cur_line_width = 0
+            for widget in line:
+                cur_line_width += widget.width
+            if cur_line_width >= max_width_line:
+                max_width_line = cur_line_width
+        max_width_line = max(max_width_line, Window.width)
+        max_width_col = max(col_height, Window.height)
+        self.size_hint = [None, None]
+        self.size = [max_width_line, max_width_col]
+
         # adding the widgets to self, sizing them and positioning them
         # at this point self.widgets should look like this:
         # self.widgets = [[widget_4, widget_3, widget_2, widget_1],
@@ -105,18 +130,24 @@ class FirstLetterGameHebrew(FloatLayout):
                     else:
                         prev_widget = line[w_idx - 1]
                         widget.pos_hint = {
-                            "right": prev_widget.pos_hint["right"] - pixels_to_relative_size(prev_widget.width)[0],
+                            "right": prev_widget.pos_hint["right"] -
+                                     pixels_to_relative_size(prev_widget.width, self.size)[0],
                             "top": 1}
             else:
                 prev_line = reversed_widgets[line_idx - 1]
                 for w_idx, widget in enumerate(line):
-                    dist_from_top = prev_line[0].pos_hint["top"] - pixels_to_relative_size(prev_line[0].height)[1]
+                    max_prev_line_height_widget = prev_line[0]
+                    dist_from_top = prev_line[0].pos_hint["top"] - \
+                                    pixels_to_relative_size(prev_line[0].height,
+                                                            self.size)[1]
+                    print(prev_line[0].pos_hint["top"])
                     if w_idx == 0:
                         widget.pos_hint = {"right": 1, "top": dist_from_top}
                     else:
                         prev_widget = line[w_idx - 1]
                         widget.pos_hint = {
-                            "right": prev_widget.pos_hint["right"] - pixels_to_relative_size(prev_widget.width)[0],
+                            "right": prev_widget.pos_hint["right"] -
+                                     pixels_to_relative_size(prev_widget.width, self.size)[0],
                             "top": dist_from_top}
 
         for line in self.widgets:
@@ -124,37 +155,19 @@ class FirstLetterGameHebrew(FloatLayout):
                 self.add_widget(widget)
         self.widgets[0][-1].focus = True
 
-        # calc size of max line and col for scroll
-        max_width_line = 0
-        col_height = 0
-        for line in self.widgets:
-            col_height += line[0].height
-            cur_line_width = 0
-            for widget in line:
-                cur_line_width += widget.width
-            if cur_line_width >= max_width_line:
-                max_width_line = cur_line_width
-        self.size_for_scroll_view = [max_width_line + 20, col_height + 20]
-        print(max_width_line, col_height)
+
+class FirstLetterGameHebrewPanel(ScrollView):
+    def __init__(self, given_str, **kwargs):
+        super(FirstLetterGameHebrewPanel, self).__init__(**kwargs)
+        game = FirstLetterGameHebrew(given_str)
+        self.scroll_x = 1
+        self.add_widget(game)
+        self.always_overscroll = True
 
 
 class MyApp(App):
     def build(self):
-        str1 = "אחת"
-        str2 = "שתיים"
-        str3 = "שלוששששש"
-        str4 = "ארבע?"
-        str5 = "שלום"
-        str6 = "עליך"
-        str7 = "רבי"
-        str8 = "עקיבא."
-
-        str_matrix = [
-            [str4, str3, str2, str1],
-            [str8, str7, str6, str5]
-        ]
-
-        return FirstLetterGameHebrew(brachot_1_1)
+        return FirstLetterGameHebrewPanel(brachot_1_1)
 
 
 if __name__ == '__main__':

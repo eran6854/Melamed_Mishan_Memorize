@@ -1,13 +1,12 @@
 from kivy.uix.label import Label
 from kivy.core.window import Window
+from mishnayotText import brachot_1_1
 
-
-def pixels_to_relative_size(pixels):
-    window_size = Window.size
-    if window_size[0] == 0 and window_size[1] == 0:
+def pixels_to_relative_size(pixels, size_to_relate):
+    if size_to_relate[0] == 0 or size_to_relate[1] == 0:
         return 0
     else:
-        return pixels / window_size[0], pixels / window_size[0]
+        return float(pixels / size_to_relate[0]), float(pixels / size_to_relate[1])
 
 
 def reverse_string(string: str) -> str:
@@ -51,9 +50,23 @@ def get_text_size(text, font_name, font_size):
     # Return the size as a tuple (width, height)
     return texture_size[0], texture_size[1]
 
+def string_hebrew_to_matrix(s):
+    # Split the string into lines
+    lines = s.split('\n')
+    # Split each line into words
+    words = [line.split() for line in lines]
+    words.pop(0)
+    words.pop(-1)
+    reversed_words = []
+    for line in words:
+        new_reversed_line = []
+        for word in reversed(line):
+            new_reversed_line.append(word)
+        reversed_words.append(new_reversed_line)
+    return reversed_words
 
 if __name__ == '__main__':
     str1 = "א"
     str2 = "את"
-    print(is_hebrew_characters_complete(str2, str1))
+    print(string_hebrew_to_matrix(brachot_1_1))
 
