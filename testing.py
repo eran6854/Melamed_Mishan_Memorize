@@ -1,7 +1,7 @@
 from kivy.app import App
 from modulsKivy import HebrewTextInput
 from extraFunctions import is_sub_str_from_start, get_text_size, \
-    pixels_to_relative_size, is_hebrew_characters_complete, string_hebrew_to_matrix, is_hebrew_letter
+    pixels_to_relative_size, is_hebrew_characters_complete, string_hebrew_to_matrix
 from kivy.utils import get_color_from_hex
 from kivy.uix.floatlayout import FloatLayout
 from mishnayotText import brachot_1_1
@@ -15,7 +15,7 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
             raise Exception("text length is 0")
         super().__init__(**kwargs)
         self.hint_text = text[0]
-        self.font_size = 35
+        self.font_size = 50
         self.hint_text_color = get_color_from_hex('#0000FF')
         self.foreground_color = get_color_from_hex('#0000FF')
         self.target_text = text
@@ -50,6 +50,7 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
             self.disabled_foreground_color = (0, 255, 0, 1)
         if self.next is not None:
             self.next.focus = True
+            self.parent.parent.scroll_to_widget(self.next)
 
 
 class FirstLetterGameHebrew(FloatLayout):
@@ -130,24 +131,22 @@ class FirstLetterGameHebrew(FloatLayout):
                     else:
                         prev_widget = line[w_idx - 1]
                         widget.pos_hint = {
-                            "right": prev_widget.pos_hint["right"] -
-                                     pixels_to_relative_size(prev_widget.width, self.size)[0],
+                            "right": prev_widget.pos_hint["right"] - pixels_to_relative_size(prev_widget.width,
+                                                                                             self.size)[0],
                             "top": 1}
             else:
                 prev_line = reversed_widgets[line_idx - 1]
                 for w_idx, widget in enumerate(line):
-                    max_prev_line_height_widget = prev_line[0]
-                    dist_from_top = prev_line[0].pos_hint["top"] - \
-                                    pixels_to_relative_size(prev_line[0].height,
-                                                            self.size)[1]
-                    print(prev_line[0].pos_hint["top"])
+                    dist_from_top = prev_line[0].pos_hint["top"] - pixels_to_relative_size(prev_line[0].height,
+                                                                                           self.size)[1]
+
                     if w_idx == 0:
                         widget.pos_hint = {"right": 1, "top": dist_from_top}
                     else:
                         prev_widget = line[w_idx - 1]
                         widget.pos_hint = {
-                            "right": prev_widget.pos_hint["right"] -
-                                     pixels_to_relative_size(prev_widget.width, self.size)[0],
+                            "right": prev_widget.pos_hint["right"] - pixels_to_relative_size(prev_widget.width,
+                                                                                             self.size)[0],
                             "top": dist_from_top}
 
         for line in self.widgets:
@@ -163,6 +162,9 @@ class FirstLetterGameHebrewPanel(ScrollView):
         self.scroll_x = 1
         self.add_widget(game)
         self.always_overscroll = True
+
+    def scroll_to_widget(self, widget):
+        self.scroll_to(widget)
 
 
 class MyApp(App):
