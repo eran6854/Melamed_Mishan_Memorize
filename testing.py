@@ -15,7 +15,7 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
             raise Exception("text length is 0")
         super().__init__(**kwargs)
         self.hint_text = text[0]
-        self.font_size = 50
+        self.font_size = 35
         self.hint_text_color = get_color_from_hex('#0000FF')
         self.foreground_color = get_color_from_hex('#0000FF')
         self.target_text = text
