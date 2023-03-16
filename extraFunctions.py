@@ -1,6 +1,7 @@
 from kivy.uix.label import Label
 from kivy.core.window import Window
-from mishnayotText import brachot_1_1
+from mishnayotText import berakhot_1_1_text
+
 
 def pixels_to_relative_size(pixels, size_to_relate):
     if size_to_relate[0] == 0 or size_to_relate[1] == 0:
@@ -19,6 +20,7 @@ def is_sub_str_from_start(sub: str, org: str) -> bool:
     if sub == org[:len(sub)]:
         return True
     return False
+
 
 def is_hebrew_letter(char: str) -> bool:
     # Check if the character is in the Hebrew letters Unicode range
@@ -50,6 +52,7 @@ def get_text_size(text, font_name, font_size):
     # Return the size as a tuple (width, height)
     return texture_size[0], texture_size[1]
 
+
 def string_hebrew_to_matrix(s):
     # Split the string into lines
     lines = s.split('\n')
@@ -65,8 +68,8 @@ def string_hebrew_to_matrix(s):
         reversed_words.append(new_reversed_line)
     return reversed_words
 
+
 if __name__ == '__main__':
     str1 = "א"
     str2 = "את"
-    print(string_hebrew_to_matrix(brachot_1_1))
-
+    print(string_hebrew_to_matrix(berakhot_1_1_text))

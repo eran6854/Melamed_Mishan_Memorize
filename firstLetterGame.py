@@ -4,9 +4,10 @@ from extraFunctions import is_sub_str_from_start, get_text_size, \
     pixels_to_relative_size, is_hebrew_characters_complete, string_hebrew_to_matrix
 from kivy.utils import get_color_from_hex
 from kivy.uix.floatlayout import FloatLayout
-from mishnayotText import brachot_1_1
+from mishnayotText import berakhot_1_1_text
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
+from kivy.clock import Clock
 
 
 class FirstLetterGameHebrewTextInput(HebrewTextInput):
@@ -52,9 +53,12 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
             self.next.focus = True
             self.parent.parent.scroll_to_widget(self.next)
 
+    def focus_on_widget(self):
+        self.focus = True
+
 
 class FirstLetterGameHebrew(FloatLayout):
-    def __init__(self, given_str: str, **kwargs):
+    def __init__(self, given_str: str, scroll_view, **kwargs):
         """
         First game letter widget
         :param given_str: str in hebrew that can be multiline as follows:
@@ -67,6 +71,7 @@ class FirstLetterGameHebrew(FloatLayout):
         """
 
         super().__init__(**kwargs)
+        self.scroll_view = scroll_view
 
         # transforming given_str into a str_matrix that will look as follows:
         # str_matrix = [
@@ -152,16 +157,20 @@ class FirstLetterGameHebrew(FloatLayout):
         for line in self.widgets:
             for widget in line:
                 self.add_widget(widget)
-        self.widgets[0][-1].focus = True
+
+    def on_parent(self, *args):
+        if self.parent is not None:
+            Clock.schedule_once(lambda dt: self.widgets[0][-1].focus_on_widget(), 0.5)
+            self.scroll_view.scroll_to_widget(self.widgets[0][-1])
 
 
 class FirstLetterGameHebrewPanel(ScrollView):
     def __init__(self, given_str, **kwargs):
         super(FirstLetterGameHebrewPanel, self).__init__(**kwargs)
-        game = FirstLetterGameHebrew(given_str)
-        self.scroll_x = 1
-        self.add_widget(game)
+        self.game = FirstLetterGameHebrew(given_str, self)
+        self.add_widget(self.game)
         self.always_overscroll = True
+        self.scroll_x = 1
 
     def scroll_to_widget(self, widget):
         self.scroll_to(widget)
@@ -169,7 +178,7 @@ class FirstLetterGameHebrewPanel(ScrollView):
 
 class MyApp(App):
     def build(self):
-        return FirstLetterGameHebrewPanel(brachot_1_1)
+        return FirstLetterGameHebrewPanel(berakhot_1_1_text)
 
 
 if __name__ == '__main__':

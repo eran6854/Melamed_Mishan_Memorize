@@ -3,8 +3,6 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
-from kivy.utils import get_color_from_hex
-from extraFunctions import is_sub_str_from_start
 
 
 class HebrewTextInput(TextInput):
@@ -32,8 +30,9 @@ class HebrewTextInput(TextInput):
 
 
 class LinkWidget(BoxLayout):
-    def __init__(self, button_text: str, **kwargs):
+    def __init__(self, button_text: str, link, **kwargs):
         super().__init__(**kwargs)
+        self.link = link
 
         # Create the icon
         self.icon = Image(source='torah256.png', size_hint_x=0.015)
@@ -59,47 +58,3 @@ class LinkWidget(BoxLayout):
             self.icon.source = f'{icon_1}.png'
         else:
             self.icon.source = f'{icon_2}.png'
-
-
-class FirstLetterGameHebrewTextInput(HebrewTextInput):
-    def __init__(self, text, **kwargs):
-        if len(text) == 0:
-            raise Exception("text length is 0")
-        super().__init__(**kwargs)
-        self.hint_text = text[0]
-        self.hint_text_color = get_color_from_hex('#0000FF')
-        self.foreground_color = get_color_from_hex('#0000FF')
-        self.target_text = text
-        self.background_color = [0, 0, 0, 1]
-
-    def on_text(self, instance, value):
-        value = value[::-1]
-        if not is_sub_str_from_start(value, self.target_text):
-            self.text = self.target_text[::-1]
-            self.lock(True)
-        elif value == self.target_text:
-            self.lock(False)
-
-    def lock(self, is_fail: bool):
-        self.readonly = True
-        self.focus = False
-        self.disabled = True
-        self.background_disabled_normal = ""
-        self.background_color = [0, 0, 0, 1]
-        if is_fail:
-            self.foreground_color = (1, 0, 0, 1)
-            self.disabled_foreground_color = (1, 0, 0, 1)
-        else:
-            self.foreground_color = (0, 255, 0, 1)
-            self.disabled_foreground_color = (0, 255, 0, 1)
-
-
-class Mishna:
-    def __init__(self, seder: str, masechet: str, perek: str, number: int, text: str):
-        self.seder = seder
-        self.masechet = masechet
-        self.perek = perek
-        self.number = number
-        self.text = text
-        self.test_1_grade = 0
-        self.memorized = 0
