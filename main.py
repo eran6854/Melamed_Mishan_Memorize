@@ -38,7 +38,7 @@ class MainLayout(BoxLayout):
         # Creating widgets
         for seder in self.shas.children:
             widget = LinkWidget(extraFunctions.reverse_string(seder.name), seder)
-            widget.button.bind(on_press=lambda x: self.on_press(widget))
+            widget.button.bind(on_press=lambda x, w=widget: self.on_press(w))
             self.widgets.append(widget)
             self.add_widget(widget)
 
@@ -80,7 +80,7 @@ class Mishna:
         self.main_layout.clear_widgets()
         game = FirstLetterGameHebrewPanel(self.text)
         self.main_layout.add_widget(game)
-        # self.main_layout.set_focus_when_widget_ready(game.game.widgets[0][-1], 0.1)
+
 
 
 class Perek:

@@ -1,13 +1,14 @@
 from kivy.app import App
 from textModule import HebrewTextInput
-from extraFunctions import is_sub_str_from_start, get_text_size, \
-    pixels_to_relative_size, is_hebrew_characters_complete, string_hebrew_to_matrix
+from extraFunctions import is_sub_str_from_start, get_text_size, is_hebrew_characters_complete, \
+    string_hebrew_to_matrix
 from kivy.utils import get_color_from_hex
-from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
 from mishnayotText import berakhot_1_1_text
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.clock import Clock
+from kivy.uix.widget import Widget
 
 
 class FirstLetterGameHebrewTextInput(HebrewTextInput):
@@ -51,13 +52,13 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
             self.disabled_foreground_color = (0, 255, 0, 1)
         if self.next is not None:
             self.next.focus = True
-            self.parent.parent.scroll_to_widget(self.next)
+            self.parent.parent.parent.scroll_to_widget(self.next)
 
     def focus_on_widget(self):
         self.focus = True
 
 
-class FirstLetterGameHebrew(FloatLayout):
+class FirstLetterGameHebrew(BoxLayout):
     def __init__(self, given_str: str, scroll_view, **kwargs):
         """
         First game letter widget
@@ -67,10 +68,11 @@ class FirstLetterGameHebrew(FloatLayout):
             משעה שהכהנים נכנסים לאכול בתרומתן.
         '''
         etc.
+        :param scroll_view: The parent scroll view.
         :param kwargs: kwargs
         """
 
-        super().__init__(**kwargs)
+        super().__init__(orientation='vertical', **kwargs)
         self.scroll_view = scroll_view
 
         # transforming given_str into a str_matrix that will look as follows:
@@ -102,7 +104,6 @@ class FirstLetterGameHebrew(FloatLayout):
         for line in reversed(reversed_widgets_matrix):
             self.widgets.append(line)
 
-        # calc size of max line and col for scroll
         max_width_line = 0
         col_height = 0
         for line in self.widgets:
@@ -117,51 +118,30 @@ class FirstLetterGameHebrew(FloatLayout):
         self.size_hint = [None, None]
         self.size = [max_width_line, max_width_col]
 
-        # adding the widgets to self, sizing them and positioning them
-        # at this point self.widgets should look like this:
-        # self.widgets = [[widget_4, widget_3, widget_2, widget_1],
-        #                [widget_8, widget_7, widget_6, widget_5]]
-        reversed_widgets = []
         for line in self.widgets:
-            reversed_widgets_new_line = []
-            for widget in reversed(line):
-                reversed_widgets_new_line.append(widget)
-            reversed_widgets.append(reversed_widgets_new_line)
+            line_layout = BoxLayout(orientation='horizontal', size_hint_y=None, height=line[0].height)
 
-        for line_idx, line in enumerate(reversed_widgets):
-            if line_idx == 0:
-                for w_idx, widget in enumerate(line):
-                    if w_idx == 0:
-                        widget.pos_hint = {"right": 1, "top": 1}
-                    else:
-                        prev_widget = line[w_idx - 1]
-                        widget.pos_hint = {
-                            "right": prev_widget.pos_hint["right"] - pixels_to_relative_size(prev_widget.width,
-                                                                                             self.size)[0],
-                            "top": 1}
-            else:
-                prev_line = reversed_widgets[line_idx - 1]
-                for w_idx, widget in enumerate(line):
-                    dist_from_top = prev_line[0].pos_hint["top"] - pixels_to_relative_size(prev_line[0].height,
-                                                                                           self.size)[1]
+            spacer = Widget()
+            line_layout.add_widget(spacer)
 
-                    if w_idx == 0:
-                        widget.pos_hint = {"right": 1, "top": dist_from_top}
-                    else:
-                        prev_widget = line[w_idx - 1]
-                        widget.pos_hint = {
-                            "right": prev_widget.pos_hint["right"] - pixels_to_relative_size(prev_widget.width,
-                                                                                             self.size)[0],
-                            "top": dist_from_top}
-
-        for line in self.widgets:
             for widget in line:
-                self.add_widget(widget)
+                line_layout.add_widget(widget)
+            self.add_widget(line_layout)
+
+        # Add a spacer widget at the bottom of the layout
+        bottom_spacer = Widget(size_hint_y=None, height=max(0, Window.height - col_height))
+        self.add_widget(bottom_spacer)
 
     def on_parent(self, *args):
         if self.parent is not None:
             Clock.schedule_once(lambda dt: self.widgets[0][-1].focus_on_widget(), 0.5)
             self.scroll_view.scroll_to_widget(self.widgets[0][-1])
+
+    def get_total_lines_height(self):
+        total_height = 0
+        for line in self.widgets:
+            total_height += line[0].height
+        return total_height
 
 
 class FirstLetterGameHebrewPanel(ScrollView):
