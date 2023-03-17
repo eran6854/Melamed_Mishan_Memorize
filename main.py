@@ -4,13 +4,17 @@ import mishnayotText
 from kivy.uix.boxlayout import BoxLayout
 import extraFunctions
 from firstLetterGame import FirstLetterGameHebrewPanel
+from kivy.uix.label import Label
 
 
 class MainLayout(BoxLayout):
     def __init__(self, **kwargs):
+
+        # Init operations
         super(MainLayout, self).__init__(**kwargs)
         self.orientation = "vertical"
 
+        # Creating mishnayot perakim etc.
         berakhot_1_1 = Mishna("משנה א", mishnayotText.berakhot_1_1_text, self)
         berakhot_1_2 = Mishna("משנה ב", mishnayotText.berakhot_1_2_text, self)
         berakhot_1 = Perek("פרק א", [berakhot_1_1, berakhot_1_2], self)
@@ -31,19 +35,25 @@ class MainLayout(BoxLayout):
             child.parent = shas
 
         self.shas = shas
-
         self.present_back = None
         self.widgets = []
 
-        # Creating widgets
+        # Top rectangle
+        self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
+
+        # Creating widgets for home screen setup
         for seder in self.shas.children:
             widget = LinkWidget(extraFunctions.reverse_string(seder.name), seder)
             widget.button.bind(on_press=lambda x, w=widget: self.on_press(w))
             self.widgets.append(widget)
             self.add_widget(widget)
 
+        # Bottom rectangle
+        self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
+
     def on_press(self, widget):
         self.clear_widgets()
+        self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
         self.present_back = widget.link
         self.widgets = []
 
@@ -52,6 +62,7 @@ class MainLayout(BoxLayout):
             for test in self.present_back.test_widgets:
                 self.widgets.append(test)
                 self.add_widget(test)
+            self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
 
         # current is at least a perek
         else:
@@ -60,6 +71,7 @@ class MainLayout(BoxLayout):
                 widget.button.bind(on_press=lambda x, w=widget: self.on_press(w))
                 self.widgets.append(widget)
                 self.add_widget(widget)
+            self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
 
 
 class Mishna:
@@ -78,9 +90,10 @@ class Mishna:
 
     def on_press_test_1(self):
         self.main_layout.clear_widgets()
+        self.main_layout.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
         game = FirstLetterGameHebrewPanel(self.text)
         self.main_layout.add_widget(game)
-
+        self.main_layout.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
 
 
 class Perek:
