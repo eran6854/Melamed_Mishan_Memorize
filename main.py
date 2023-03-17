@@ -91,7 +91,7 @@ class Mishna:
     def on_press_test_1(self):
         self.main_layout.clear_widgets()
         self.main_layout.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
-        game = FirstLetterGameHebrewPanel(self.text)
+        game = FirstLetterGameHebrewPanel(self)
         self.main_layout.add_widget(game)
         self.main_layout.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
 

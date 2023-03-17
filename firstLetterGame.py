@@ -59,11 +59,11 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
 
 
 class FirstLetterGameHebrew(BoxLayout):
-    def __init__(self, given_str: str, scroll_view, **kwargs):
+    def __init__(self, given_mishna, scroll_view, **kwargs):
         """
         First game letter widget
-        :param given_str: str in hebrew that can be multiline as follows:
-        given_str = '''
+        :param given_mishna: given_mishna.text in hebrew that can be multiline as follows:
+        given_mishna.text = '''
             מאימתי קורין את שמע בערבית?
             משעה שהכהנים נכנסים לאכול בתרומתן.
         '''
@@ -81,7 +81,7 @@ class FirstLetterGameHebrew(BoxLayout):
         #    [word8, word7, word6, word5]
         # ]
         #
-        str_matrix = string_hebrew_to_matrix(given_str)
+        str_matrix = string_hebrew_to_matrix(given_mishna.text)
 
         # creating self.widgets from str_matrix
         reversed_widgets_matrix = []
@@ -145,9 +145,10 @@ class FirstLetterGameHebrew(BoxLayout):
 
 
 class FirstLetterGameHebrewPanel(ScrollView):
-    def __init__(self, given_str, **kwargs):
+    def __init__(self, mishna, **kwargs):
         super(FirstLetterGameHebrewPanel, self).__init__(**kwargs)
-        self.game = FirstLetterGameHebrew(given_str, self)
+        self.game = FirstLetterGameHebrew(mishna, self)
+        self.mishna = mishna
         self.add_widget(self.game)
         self.always_overscroll = True
         self.scroll_x = 1
