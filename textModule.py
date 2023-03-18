@@ -32,14 +32,14 @@ class HebrewTextInput(TextInput):
 class LinkWidget(BoxLayout):
     def __init__(self, button_text: str, link, **kwargs):
         super().__init__(**kwargs)
-        self.link = link
+        self.link = link  # seder/ masechet etc.
 
         # Create the icon
         self.icon = Image(source='torah256.png', size_hint_x=0.015)
         self.add_widget(self.icon)
 
         # Create the label
-        self.label = Label(text='0%', size_hint_x=0.015)
+        self.label = Label(text=f'{link.grade}%', size_hint_x=0.015)
         self.add_widget(self.label)
 
         # Create the button

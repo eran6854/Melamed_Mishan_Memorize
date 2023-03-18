@@ -11,8 +11,8 @@ from kivy.clock import Clock
 from kivy.uix.widget import Widget
 
 
-class FirstLetterGameHebrewTextInput(HebrewTextInput):
-    def __init__(self, text, next_w=None, **kwargs):
+class FirstLetterGameHebrewTextInput(HebrewTextInput):  # add given mishna because it has main layout in it!
+    def __init__(self, game, given_mishna, text, next_w=None, **kwargs):
         if len(text) == 0:
             raise Exception("text length is 0")
         super().__init__(**kwargs)
@@ -23,20 +23,27 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
         self.target_text = text
         self.background_color = [0, 0, 0, 1]
         self.next = next_w
+        self.mishna = given_mishna
+        self.game = game
         self.size_hint = (None, None)
         self.size = (get_text_size(text, self.font_name, self.font_size)[0] + 12,
                      get_text_size(text, self.font_name, self.font_size)[1] + 15)
+        self.skip_on_text = False
 
     def on_text(self, instance, value):
-        value = value[::-1]
-        if not is_sub_str_from_start(value, self.target_text):
-            self.text = self.target_text[::-1]
+        if self.skip_on_text:
+            self.skip_on_text = False
             self.lock(True)
-        elif value == self.target_text:
-            self.lock(False)
-        elif is_hebrew_characters_complete(value, self.target_text):
-            self.text = self.target_text[::-1]
-            self.lock(False)
+        else:
+            value = value[::-1]
+            if not is_sub_str_from_start(value, self.target_text):
+                self.skip_on_text = True
+                self.text = self.target_text[::-1]  # here on_text will be triggered
+            elif value == self.target_text:
+                self.lock(False)
+            elif is_hebrew_characters_complete(value, self.target_text):
+                self.text = self.target_text[::-1]  # here on_text will be triggered and the case before will...
+                #  ...be executed
 
     def lock(self, is_fail: bool):
         self.readonly = True
@@ -44,15 +51,21 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):
         self.disabled = True
         self.background_disabled_normal = ""
         self.background_color = [0, 0, 0, 1]
+        self.game.total_words += 1
         if is_fail:
             self.foreground_color = (1, 0, 0, 1)
             self.disabled_foreground_color = (1, 0, 0, 1)
         else:
             self.foreground_color = (0, 255, 0, 1)
             self.disabled_foreground_color = (0, 255, 0, 1)
+            self.game.words_right += 1
         if self.next is not None:
             self.next.focus = True
             self.parent.parent.parent.scroll_to_widget(self.next)
+        else:
+            grade = int((self.game.words_right / self.game.total_words) * 100)
+            self.mishna.set_grade(0, grade)
+            self.mishna.refresh()
 
     def focus_on_widget(self):
         self.focus = True
@@ -72,8 +85,11 @@ class FirstLetterGameHebrew(BoxLayout):
         :param kwargs: kwargs
         """
 
+        # init operations
         super().__init__(orientation='vertical', **kwargs)
         self.scroll_view = scroll_view
+        self.words_right = 0
+        self.total_words = 0
 
         # transforming given_str into a str_matrix that will look as follows:
         # str_matrix = [
@@ -92,10 +108,10 @@ class FirstLetterGameHebrew(BoxLayout):
             widgets_new_line = []
             for str_1 in line:
                 if line_counter == 0 and col_counter == 0:
-                    prev_widget = FirstLetterGameHebrewTextInput(str_1, None)
+                    prev_widget = FirstLetterGameHebrewTextInput(self, given_mishna, str_1, None)
                     widgets_new_line.append(prev_widget)
                 else:
-                    prev_widget = FirstLetterGameHebrewTextInput(str_1, prev_widget)
+                    prev_widget = FirstLetterGameHebrewTextInput(self, given_mishna, str_1, prev_widget)
                     widgets_new_line.append(prev_widget)
                 col_counter += 1
             reversed_widgets_matrix.append(widgets_new_line)
