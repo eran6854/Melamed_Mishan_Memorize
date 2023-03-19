@@ -3,6 +3,7 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
 
 
 class HebrewTextInput(TextInput):
@@ -35,7 +36,7 @@ class LinkWidget(BoxLayout):
         self.link = link  # seder/ masechet etc.
 
         # Create the icon
-        self.icon = Image(source='torah256.png', size_hint_x=0.015)
+        self.icon = Image(source='icons/torah256.png', size_hint_x=0.015)
         self.add_widget(self.icon)
 
         # Create the label
@@ -55,6 +56,14 @@ class LinkWidget(BoxLayout):
 
     def set_icon(self, value: bool, icon_1: str, icon_2: str):
         if value:
-            self.icon.source = f'{icon_1}.png'
+            self.icon.source = f'icons/{icon_1}.png'
         else:
-            self.icon.source = f'{icon_2}.png'
+            self.icon.source = f'icons/{icon_2}.png'
+
+
+def open_popup(instance):
+    popup_layout = BoxLayout(orientation='vertical', spacing=10, padding=20)  # change
+    for i in range(1, 5):
+        popup_layout.add_widget(Button(text=f'Button {i}'))
+    popup = Popup(title='Popup Window', content=popup_layout, size_hint=(None, None), size=(400, 400))
+    popup.open()

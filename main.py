@@ -14,8 +14,9 @@ class MainLayout(BoxLayout):
         # Init operations
         super(MainLayout, self).__init__(**kwargs)
         self.orientation = "vertical"
+        self.current_parent = None
 
-        # Creating mishnayot, perakim etc.
+        # Creating mishnayot, perakim etc. and defining self.shas.
         berakhot_1_1 = Mishna("משנה א", mishnayotText.berakhot_1_1_text, self)
         berakhot_1_2 = Mishna("משנה ב", mishnayotText.berakhot_1_2_text, self)
         berakhot_1 = Perek("פרק א", [berakhot_1_1, berakhot_1_2], self)
@@ -37,22 +38,9 @@ class MainLayout(BoxLayout):
 
         self.shas = shas
 
-        # init where to go back to (None)
-        self.current_parent = None
+        self.show_home_screen()
 
-        # Top rectangle
-        self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
-
-        # Creating widgets for home screen setup
-        for seder in self.shas.children:
-            widget = LinkWidget(extraFunctions.reverse_string(seder.name), seder)
-            widget.button.bind(on_press=lambda x, w=widget: self.on_press(w.link))
-            self.add_widget(widget)
-
-        # Bottom rectangle
-        self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
-
-    def on_press(self, link):
+    def show_item(self, item):
 
         # clear all widgets from main layout
         self.clear_widgets()
@@ -61,7 +49,7 @@ class MainLayout(BoxLayout):
         self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
 
         # set a way to go back
-        self.current_parent = link  # seder/ masechet etc.
+        self.current_parent = item  # seder/ masechet etc. where to go back to
 
         # current is a mishna
         if self.current_parent.children is None:
@@ -77,14 +65,33 @@ class MainLayout(BoxLayout):
         # current is at least a perek
         else:
             for child in self.current_parent.children:
-
                 # creating widgets for all children and adding them
                 widget = LinkWidget(extraFunctions.reverse_string(child.name), child)
-                widget.button.bind(on_press=lambda x, w=widget: self.on_press(w.link))
+                widget.button.bind(on_press=lambda x, w=widget: self.show_item(w.link))
                 self.add_widget(widget)
 
             # bottom part
             self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
+
+    def show_home_screen(self):
+
+        # clear all widgets from main layout
+        self.clear_widgets()
+
+        # top part
+        self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
+
+        # set where to go back to (None to go back)
+        self.current_parent = None
+
+        # Creating widgets for home screen setup
+        for seder in self.shas.children:
+            widget = LinkWidget(extraFunctions.reverse_string(seder.name), seder)
+            widget.button.bind(on_press=lambda x, w=widget: self.show_item(w.link))
+            self.add_widget(widget)
+
+        # Bottom rectangle
+        self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
 
 
 class Mishna:
@@ -111,6 +118,8 @@ class Mishna:
 
     def refresh(self):
 
+        self.main_layout.show_item(self)
+        """
         # clear everything from main layout
         self.main_layout.clear_widgets()
 
@@ -127,7 +136,7 @@ class Mishna:
 
         # bottom part
         self.main_layout.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
-
+        """
 
 class Perek:
     def __init__(self, name: str, mishnayot: list[Mishna], main_layout):
@@ -169,6 +178,7 @@ class Seder:
 
 class Shas:
     def __init__(self, sedarim: list[Seder], main_layout):
+        self.name = 'ש"ס'
         self.children = sedarim
         self.parent = None
         self.main_layout = main_layout

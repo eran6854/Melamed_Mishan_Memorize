@@ -59,8 +59,9 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):  # add given mishna becau
             self.foreground_color = (0, 255, 0, 1)
             self.disabled_foreground_color = (0, 255, 0, 1)
             self.game.words_right += 1
+            if self.next is not None:
+                self.next.focus = True
         if self.next is not None:
-            self.next.focus = True
             self.parent.parent.parent.scroll_to_widget(self.next)
         else:
             grade = int((self.game.words_right / self.game.total_words) * 100)
