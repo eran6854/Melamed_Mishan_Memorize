@@ -1,6 +1,9 @@
 from kivy.uix.label import Label
 from kivy.core.window import Window
 from mishnayotText import berakhot_1_1_text
+from kivy.uix.popup import Popup
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 
 
 def pixels_to_relative_size(pixels, size_to_relate):
@@ -67,6 +70,14 @@ def string_hebrew_to_matrix(s):
             new_reversed_line.append(word)
         reversed_words.append(new_reversed_line)
     return reversed_words
+
+
+def open_popup(instance):
+    popup_layout = BoxLayout(orientation='vertical', spacing=10, padding=20)  # change
+    for i in range(1, 5):
+        popup_layout.add_widget(Button(text=f'Button {i}'))
+    popup = Popup(title='Popup Window', content=popup_layout, size_hint=(None, None), size=(400, 400))
+    popup.open()
 
 
 if __name__ == '__main__':

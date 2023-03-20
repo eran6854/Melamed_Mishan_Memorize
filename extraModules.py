@@ -3,12 +3,9 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
-from kivy.uix.popup import Popup
 import mishnayotText
 import extraFunctions
 from statistics import mean
-from extraFunctions import is_sub_str_from_start, get_text_size, is_hebrew_characters_complete, \
-    string_hebrew_to_matrix
 from kivy.utils import get_color_from_hex
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
@@ -70,7 +67,7 @@ class MainLayout(BoxLayout):
 
             # test 0 - first letter game
             test_0_widget = LinkWidget(extraFunctions.reverse_string('מבחן אות ראשונה'), self.current_parent)
-            test_0_widget.button.bind(on_press=lambda x: self.current_parent.on_press_test_0())
+            test_0_widget.button.bind(on_press=lambda x: self.current_parent.show_first_letter_game())
             self.add_widget(test_0_widget)
 
             # bottom part
@@ -93,7 +90,8 @@ class MainLayout(BoxLayout):
         self.clear_widgets()
 
         # top part
-        self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
+        # self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
+        self.add_widget(TopPart(self, self.shas))
 
         # set where to go back to (None to go back)
         self.current_parent = None
@@ -133,7 +131,7 @@ class Mishna(Item):
         self.test_grades = [0]  # test_0: first letter game
         self.main_layout = main_layout
 
-    def on_press_test_0(self):
+    def show_first_letter_game(self):
         self.main_layout.clear_widgets()
         self.main_layout.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
         game = FirstLetterGameHebrewPanel(self)
@@ -166,16 +164,14 @@ class Seder(GenericItem):
         super().__init__(name, main_layout)
         self.children = mesachtot
 
+
+class Shas(GenericItem):
+    def __init__(self, sedarim: list[Seder], main_layout):
+        super().__init__('ש"ס', main_layout)
+        self.children = sedarim
+
     def set_grade(self):
         self.grade = mean([child.grade for child in self.children])
-
-
-class Shas:
-    def __init__(self, sedarim: list[Seder], main_layout):
-        self.name = 'ש"ס'
-        self.children = sedarim
-        self.parent = None
-        self.main_layout = main_layout
 
 
 class HebrewTextInput(TextInput):
@@ -233,24 +229,22 @@ class LinkWidget(BoxLayout):
             self.icon.source = f'icons/{icon_2}.png'
 
 
-def open_popup():
-    popup_layout = BoxLayout(orientation='vertical', spacing=10, padding=20)  # change
-    for i in range(1, 5):
-        popup_layout.add_widget(Button(text=f'Button {i}'))
-    popup = Popup(title='Popup Window', content=popup_layout, size_hint=(None, None), size=(400, 400))
-    popup.open()
-
-
 class TopPart(BoxLayout):
-    def __init__(self, main_layout, item, **kwargs):
+    def __init__(self, main_layout: MainLayout, item, **kwargs):
         super().__init__(**kwargs)
         self.orientation = "horizontal"
+        self.size_hint_y = 0.07
         back_button = Button(text=f'back button')
-        middle_label = Label(text=f'{item.name}')
-        pop_up_button = Button(text=f'pop up', on_press=open_popup())
-        main_layout.add_widget(back_button)
-        main_layout.add_widget(middle_label)
-        main_layout.add_widget(pop_up_button)
+        middle_label = Label(text=f'{item.grade}%  :{extraFunctions.reverse_string(item.name)}',
+                             base_direction="rtl",
+                             font_name="Arial.ttf",
+                             halign="right"
+                             )
+        pop_up_button = Button(text="pop up", on_press=extraFunctions.open_popup)
+        self.add_widget(back_button)
+        self.add_widget(middle_label)
+        self.add_widget(pop_up_button)
+
 
 
 """
@@ -275,8 +269,8 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):  # add given mishna becau
         self.mishna = given_mishna
         self.game = game
         self.size_hint = (None, None)
-        self.size = (get_text_size(text, self.font_name, self.font_size)[0] + 12,
-                     get_text_size(text, self.font_name, self.font_size)[1] + 15)
+        self.size = (extraFunctions.get_text_size(text, self.font_name, self.font_size)[0] + 12,
+                     extraFunctions.get_text_size(text, self.font_name, self.font_size)[1] + 15)
         self.skip_on_text = False
 
     def on_text(self, instance, value):
@@ -285,12 +279,12 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):  # add given mishna becau
             self.lock(True)
         else:
             value = value[::-1]
-            if not is_sub_str_from_start(value, self.target_text):
+            if not extraFunctions.is_sub_str_from_start(value, self.target_text):
                 self.skip_on_text = True
                 self.text = self.target_text[::-1]  # here on_text will be triggered
             elif value == self.target_text:
                 self.lock(False)
-            elif is_hebrew_characters_complete(value, self.target_text):
+            elif extraFunctions.is_hebrew_characters_complete(value, self.target_text):
                 self.text = self.target_text[::-1]  # here on_text will be triggered and the case before will...
                 #  ...be executed
 
@@ -347,7 +341,7 @@ class FirstLetterGameHebrew(BoxLayout):
         #    [word8, word7, word6, word5]
         # ]
         #
-        str_matrix = string_hebrew_to_matrix(given_mishna.text)
+        str_matrix = extraFunctions.string_hebrew_to_matrix(given_mishna.text)
 
         # creating self.widgets from str_matrix
         reversed_widgets_matrix = []
