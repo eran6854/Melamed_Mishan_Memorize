@@ -57,7 +57,7 @@ class MainLayout(BoxLayout):
         self.clear_widgets()
 
         # top part
-        self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
+        self.add_widget(TopPart(self, item))
 
         # set a way to go back
         self.current_parent = item  # seder/ masechet etc. where to go back to
@@ -90,7 +90,6 @@ class MainLayout(BoxLayout):
         self.clear_widgets()
 
         # top part
-        # self.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
         self.add_widget(TopPart(self, self.shas))
 
         # set where to go back to (None to go back)
@@ -103,6 +102,45 @@ class MainLayout(BoxLayout):
             self.add_widget(widget)
 
         # Bottom rectangle
+        self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
+
+    def show_at_least_a_perek_children(self, item):
+
+        # clear all widgets from main layout
+        self.clear_widgets()
+
+        # top part
+        self.add_widget(TopPart(self, item))
+
+        # set a way to go back
+        self.current_parent = item
+
+        for child in self.current_parent.children:
+            # creating widgets for all children and adding them
+            widget = LinkWidget(extraFunctions.reverse_string(child.name), child)
+            widget.button.bind(on_press=lambda x, w=widget: self.show_item(w.link))
+            self.add_widget(widget)
+
+        # bottom part
+        self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
+
+    def show_mishna_tests(self, mishna):
+
+        # clear all widgets from main layout
+        self.clear_widgets()
+
+        # top part
+        self.add_widget(TopPart(self, mishna))
+
+        # set a way to go back
+        self.current_parent = mishna
+
+        # test 0 - first letter game
+        test_0_widget = LinkWidget(extraFunctions.reverse_string('מבחן אות ראשונה'), self.current_parent)
+        test_0_widget.button.bind(on_press=lambda x: self.current_parent.show_first_letter_game())
+        self.add_widget(test_0_widget)
+
+        # bottom part
         self.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
 
 
@@ -133,10 +171,13 @@ class Mishna(Item):
 
     def show_first_letter_game(self):
         self.main_layout.clear_widgets()
-        self.main_layout.add_widget(Label(text='Top Rectangle', size_hint=(1, 0.05)))
+        self.main_layout.add_widget(TopPart(self.main_layout, self, True))
         game = FirstLetterGameHebrewPanel(self)
         self.main_layout.add_widget(game)
         self.main_layout.add_widget(Label(text='Bottom Rectangle', size_hint=(1, 0.05)))
+
+    def show_tests(self):
+        self.main_layout.show_mishna_tests(self)
 
     def set_grade(self, test_idx: int, test_grade: int):
         self.test_grades[test_idx] = test_grade
@@ -230,21 +271,39 @@ class LinkWidget(BoxLayout):
 
 
 class TopPart(BoxLayout):
-    def __init__(self, main_layout: MainLayout, item, **kwargs):
+    def __init__(self, main_layout: MainLayout, item, is_test=False, **kwargs):
         super().__init__(**kwargs)
         self.orientation = "horizontal"
+        self.main_layout = main_layout
+        self.item = item
         self.size_hint_y = 0.07
-        back_button = Button(text=f'back button')
+        if not is_test:
+            back_button = Button(text=f'back button',
+                                 size_hint_x=0.15,
+                                 on_press=lambda x: self.main_layout.show_item(self.item.parent),
+                                 )
+        else:
+            back_button = Button(text=f'back button',
+                                 size_hint_x=0.15,
+                                 on_press=lambda x: self.item.show_tests(),
+                                 )
         middle_label = Label(text=f'{item.grade}%  :{extraFunctions.reverse_string(item.name)}',
                              base_direction="rtl",
                              font_name="Arial.ttf",
-                             halign="right"
+                             halign="right",
+                             size_hint_x=0.7,
+                             font_size='25sp'
                              )
-        pop_up_button = Button(text="pop up", on_press=extraFunctions.open_popup)
-        self.add_widget(back_button)
+        pop_up_button = Button(text="pop up", on_press=extraFunctions.open_popup, size_hint_x=0.15)
+
+        if self.item.parent is not None:
+            self.add_widget(back_button)
+        else:
+            self.add_widget(Label(text=f'',
+                                  size_hint_x=0.15, )
+                            )
         self.add_widget(middle_label)
         self.add_widget(pop_up_button)
-
 
 
 """
