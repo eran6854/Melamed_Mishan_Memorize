@@ -1,36 +1,24 @@
-"""
-basic popup app
-"""
+import re
 
+def extract_hebrew_words(text):
+    # Remove line breaks
+    text = text.replace('\n', ' ')
 
-import kivy
-kivy.require('2.0.0') # replace with your current kivy version if necessary
-from kivy.app import App
-from kivy.uix.button import Button
-from kivy.uix.popup import Popup
-from kivy.uix.boxlayout import BoxLayout
+    # Remove non-Hebrew characters and white spaces
+    hebrew_regex = re.compile(r'[\u0590-\u05FF]+')
+    words = hebrew_regex.findall(text)
 
+    return words
 
-class MainScreen(BoxLayout):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.orientation = 'vertical'
-        self.padding = 50
-        self.spacing = 20
-        self.add_widget(Button(text='Open Popup', on_press=self.open_popup))
-
-    def open_popup(self, instance):
-        popup_layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
-        for i in range(1, 5):
-            popup_layout.add_widget(Button(text=f'Button {i}'))
-        popup = Popup(title='Popup Window', content=popup_layout, size_hint=(None, None), size=(400, 400))
-        popup.open()
-
-
-class MyApp(App):
-    def build(self):
-        return MainScreen()
-
-
-if __name__ == '__main__':
-    MyApp().run()
+# Example usage
+input_text = '''
+מאימתי קורין את שמע בשחרית?
+משיכיר בין תכלת ללבן.
+רבי אליעזר אומר: בין תכלת לכרתי,
+וגומרה עד הנץ החמה.
+רבי יהושע אומר: עד שלש שעות,
+שכן דרך בני מלכים לעמוד בשלש שעות.
+הקורא מכאן ואילך לא הפסיד, כאדם הקורא בתורה.
+'''
+output = extract_hebrew_words(input_text)
+print(output)

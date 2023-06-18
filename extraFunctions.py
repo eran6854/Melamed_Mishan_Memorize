@@ -4,7 +4,7 @@ from mishnayotText import berakhot_1_1_text
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-
+from re import compile
 
 def pixels_to_relative_size(pixels, size_to_relate):
     if size_to_relate[0] == 0 or size_to_relate[1] == 0:
@@ -72,11 +72,47 @@ def string_hebrew_to_matrix(s):
     return reversed_words
 
 
+def extract_hebrew_words(text):
+    # Remove line breaks
+    text = text.replace('\n', ' ')
+
+    # Remove non-Hebrew characters and white spaces
+    hebrew_regex = re.compile(r'[\u0590-\u05FF]+')
+    words = hebrew_regex.findall(text)
+
+    return words
+
+
 def open_popup(instance):
-    popup_layout = BoxLayout(orientation='vertical', spacing=10, padding=20)  # change
-    for i in range(1, 5):
-        popup_layout.add_widget(Button(text=f'Button {i}'))
-    popup = Popup(title='Popup Window', content=popup_layout, size_hint=(None, None), size=(400, 400))
+    popup_layout = BoxLayout(orientation='vertical')
+
+    button_box = BoxLayout(orientation='vertical')
+    change_user_button = Button(text=reverse_string("החלף משתמש"),
+                                base_direction="rtl",
+                                font_name="Arial.ttf",
+                                halign="right"
+                                )
+
+    settings_button = Button(text=reverse_string("הגדרות"),
+                             base_direction="rtl",
+                             font_name="Arial.ttf",
+                             halign="right"
+                             )
+
+    close_button = Button(text=reverse_string("סגור"),
+                          base_direction="rtl",
+                          font_name="Arial.ttf",
+                          halign="right"
+                          )
+
+    close_button.bind(on_press=lambda x: popup.dismiss())
+    button_box.add_widget(change_user_button)
+    button_box.add_widget(settings_button)
+    button_box.add_widget(close_button)
+    popup_layout.add_widget(button_box)
+
+    popup = Popup(title='', content=popup_layout, size_hint=(0.4, 0.4),
+                  background='', border=(0, 0, 0, 0), separator_height=0)
     popup.open()
 
 
