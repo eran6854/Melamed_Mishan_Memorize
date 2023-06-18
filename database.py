@@ -2,8 +2,8 @@ import sqlite3
 
 """
 Tables (static means it's values shouldn't be changed):
-names (static): cols = id (unique), name,
-hierarchy (static): cols = id (unique), parent, children,
+1) names (static): cols = id (unique), name,
+2) hierarchy (static): cols = id (unique), parent, children,
 """
 
 # setup
@@ -26,11 +26,11 @@ c = conn.cursor()
 # insert
 
 # values = [
-#     ("berakhot_9", "berakhot", 'berakhot_9_1, berakhot_9_2, berakhot_9_3, berakhot_9_4, berakhot_9_5'),
+#     ("berakhot_1_1", "berakhot_1", None)
 # ]
 #
 # # check table name is correct here
-# c.executemany('INSERT INTO hierarchy (id, parent, children) VALUES (?, ?, ?)', values)
+# c.executemany('INSERT INTO <hierarchy> (id, parent, children) VALUES (?, ?, ?)', values)
 # conn.commit()
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -52,12 +52,9 @@ c = conn.cursor()
 # ----------------------------------------------------------------------------------------------------------------------
 # select
 # c.execute("""SELECT * FROM hierarchy WHERE id='berakhot_8'""")
-c.execute("""SELECT * FROM hierarchy""")
-for line in c.fetchall():
-    list_children = line[2].split(",")
-    list_children = [e.strip() for e in list_children]
-    for child in list_children:
-        print(child)
+# c.execute("""SELECT * FROM hierarchy""")
+# for line in c.fetchall():
+#     print(line)
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
