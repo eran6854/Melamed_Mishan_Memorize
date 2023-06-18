@@ -26,11 +26,11 @@ c = conn.cursor()
 # insert
 
 # values = [
-#     ("shas", None, 'zeraim, moed, nashim, nezikin, kodashim, tohorot'),
+#     ("berakhot_9", "berakhot", 'berakhot_9_1, berakhot_9_2, berakhot_9_3, berakhot_9_4, berakhot_9_5'),
 # ]
 #
 # # check table name is correct here
-# c.executemany('INSERT INTO <hierarchy> (id, parent, children) VALUES (?, ?, ?)', values)
+# c.executemany('INSERT INTO hierarchy (id, parent, children) VALUES (?, ?, ?)', values)
 # conn.commit()
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -42,8 +42,8 @@ c = conn.cursor()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # update
-# new_value = "zeraim"
-# row_id = 'Zeraim'
+# new_value = 'berakhot_4_1, berakhot_4_2, berakhot_4_3, berakhot_4_4, berakhot_4_5, berakhot_4_6, berakhot_4_7'
+# row_id = 'berakhot_4'
 #
 # c.execute("UPDATE <table name> SET <column val to change> = ? WHERE id = ?", (new_value, row_id))
 # conn.commit()
@@ -51,7 +51,8 @@ c = conn.cursor()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # select
-c.execute("""SELECT * FROM hierarchy WHERE id!='1'""")
+# c.execute("""SELECT * FROM hierarchy WHERE id='berakhot_8'""")
+c.execute("""SELECT * FROM hierarchy""")
 for line in c.fetchall():
     list_children = line[2].split(",")
     list_children = [e.strip() for e in list_children]
@@ -85,7 +86,7 @@ conn.close()
 id values to remember:
 shas
 orders: zeraim, moed, nashim, nezikin, kodashim, tohorot
-berakhot
+zeraim: berakhot, peah, demai, kilayim, sheviit, terumot, maaserot, maaser_sheni, challah, orlah, bikkurim     
 """
 
 """
