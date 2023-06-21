@@ -1,6 +1,7 @@
 import sqlite3
 import math
 import datetime
+import statistics
 
 """
 ########################################################################################################################
@@ -52,10 +53,11 @@ c = conn.cursor()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # update
-# new_value = 'berakhot_4_1, berakhot_4_2, berakhot_4_3, berakhot_4_4, berakhot_4_5, berakhot_4_6, berakhot_4_7'
-# row_id = 'berakhot_4'
+# new_value = 'berakhot'
+# row_id = 'zeraim'
 #
-# c.execute("UPDATE <table name> SET <column val to change> = ? WHERE id = ?", (new_value, row_id))
+# # c.execute("UPDATE <table name> SET <column val to change> = ? WHERE id = ?", (new_value, row_id))
+# c.execute("UPDATE hierarchy SET children = ? WHERE id = ?", (new_value, row_id))
 # conn.commit()
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -99,6 +101,14 @@ def show_all_table_rows(table):
     connection.close()
 
 
+def show_row(table, row_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM {table} WHERE id = '{row_id}'")
+    print(cursor.fetchone())
+    connection.close()
+
+
 def get_all_table_rows(table):
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
@@ -110,19 +120,48 @@ def get_all_table_rows(table):
     return lines
 
 
-def update_test_1(mishna_id, grade):
+def eval_final_grade(mishna_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM grades WHERE id = ?", (mishna_id,))
+    row = list(cursor.fetchone())
+    new_value = math.floor(TEST_1_WEIGHT * row[1] + TEST_2_WEIGHT * row[2] + TEST_3_WEIGHT * row[3])
+    cursor.execute("UPDATE grades SET final_grade = ? WHERE id = ?", (new_value, mishna_id))
+    connection.commit()
+    connection.close()
+
+
+def update_test_0(mishna_id, grade):
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
     new_value = grade
     row_id = mishna_id
     cursor.execute("UPDATE grades SET test_1_grade = ? WHERE id = ?", (new_value, row_id))
     connection.commit()
-    cursor.execute("SELECT * FROM grades WHERE id = ?", (mishna_id,))
-    row = list(cursor.fetchone())
-    new_value = math.floor(TEST_1_WEIGHT * row[1] + TEST_2_WEIGHT * row[2] + TEST_3_WEIGHT * row[3])
-    cursor.execute("UPDATE grades SET final_grade = ? WHERE id = ?", (new_value, row_id))
+    connection.close()
+    eval_final_grade(mishna_id)
+
+
+def reset_test_0(mishna_id):
+    update_test_0(mishna_id, 0)
+
+
+def reset_all_test_0():
+    rows = get_all_table_rows("grades")
+    for row in rows:
+        mishna_id = row[0]
+        reset_test_0(mishna_id)
+
+
+def update_test_1(mishna_id, grade):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    new_value = grade
+    row_id = mishna_id
+    cursor.execute("UPDATE grades SET test_2_grade = ? WHERE id = ?", (new_value, row_id))
     connection.commit()
     connection.close()
+    eval_final_grade(mishna_id)
 
 
 def reset_test_1(mishna_id):
@@ -134,32 +173,6 @@ def reset_all_test_1():
     for row in rows:
         mishna_id = row[0]
         reset_test_1(mishna_id)
-
-
-def update_test_2(mishna_id, grade):
-    connection = sqlite3.connect("database.db")
-    cursor = connection.cursor()
-    new_value = grade
-    row_id = mishna_id
-    cursor.execute("UPDATE grades SET test_2_grade = ? WHERE id = ?", (new_value, row_id))
-    connection.commit()
-    cursor.execute("SELECT * FROM grades WHERE id = ?", (mishna_id,))
-    row = list(cursor.fetchone())
-    new_value = math.floor(TEST_1_WEIGHT * row[1] + TEST_2_WEIGHT * row[2] + TEST_3_WEIGHT * row[3])
-    cursor.execute("UPDATE grades SET final_grade = ? WHERE id = ?", (new_value, row_id))
-    connection.commit()
-    connection.close()
-
-
-def reset_test_2(mishna_id):
-    update_test_2(mishna_id, 0)
-
-
-def reset_all_test_2():
-    rows = get_all_table_rows("grades")
-    for row in rows:
-        mishna_id = row[0]
-        reset_test_2(mishna_id)
 
 
 def update_last_100_score_date(mishna_id, date_in_timestamp):
@@ -205,10 +218,119 @@ def get_text(mishna_id):
     cursor = connection.cursor()
     cursor.execute(f"SELECT * FROM text WHERE id='{mishna_id}'")
     text = cursor.fetchone()[1]
-    cursor.close()
+    connection.close()
     return text
 
-show_all_table_rows("text")
+
+def get_children(item_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM hierarchy WHERE id='{item_id}'")
+    children = cursor.fetchone()[2]
+    if children is not None:
+        children = children.split(",")
+        children = [e.strip() for e in children]
+    connection.close()
+    return children
+
+
+def get_parent(item_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM hierarchy WHERE id='{item_id}'")
+    parent = cursor.fetchone()[1]
+    connection.close()
+    return parent
+
+
+def is_mishna(item_id):
+    if get_children(item_id) is None:
+        return True
+    return False
+
+
+def get_mishna_grade(mishna_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM grades WHERE id='{mishna_id}'")
+    grade = cursor.fetchone()[4]
+    connection.close()
+    return grade
+
+
+def get_test_0_grade(mishna_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM grades WHERE id='{mishna_id}'")
+    grade = cursor.fetchone()[1]
+    connection.close()
+    return grade
+
+
+def get_test_1_grade(mishna_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM grades WHERE id='{mishna_id}'")
+    grade = cursor.fetchone()[2]
+    connection.close()
+    return grade
+
+
+def get_test_2_grade(mishna_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM grades WHERE id='{mishna_id}'")
+    grade = cursor.fetchone()[3]
+    connection.close()
+    return grade
+
+
+def get_grade(item_id):
+    children = get_children(item_id)
+    if children is None:
+        return get_mishna_grade(item_id)
+    else:
+        try:
+            return math.floor(statistics.mean([get_grade(e) for e in children]))
+        # remove when everything is well-defined
+        except Exception:
+            return 0
+
+
+def update_test_2(mishna_id, grade):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    new_value = grade
+    row_id = mishna_id
+    cursor.execute("UPDATE grades SET test_3_grade = ? WHERE id = ?", (new_value, row_id))
+    connection.commit()
+    update_last_100_score_date_now(mishna_id)
+    connection.close()
+    eval_final_grade(mishna_id)
+
+
+def reset_test_2(mishna_id):
+    update_test_2(mishna_id, 0)
+    reset_last_100_score_date(mishna_id)
+
+
+def reset_all_test_2():
+    rows = get_all_table_rows("grades")
+    for row in rows:
+        mishna_id = row[0]
+        reset_test_2(mishna_id)
+
+
+def get_name(item_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM names WHERE id='{item_id}'")
+    name = cursor.fetchone()[1]
+    connection.close()
+    return name
+
+show_row("hierarchy", "berakhot")
+
 """
 ########################################################################################################################
 Notes:
@@ -299,4 +421,9 @@ for line in c.fetchall():
 #     ("berakhot_9_3", None),
 #     ("berakhot_9_4", None),
 #     ("berakhot_9_5", None)
+"""
+"""
+hierarchy:
+('shas', None, 'zeraim, moed, nashim, nezikin, kodashim, tohorot')
+('zeraim', 'shas', 'berakhot, peah, demai, kilayim, sheviit, terumot, maaserot, maaser_sheni, challah, orlah, bikkurim')
 """
