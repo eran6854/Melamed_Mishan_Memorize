@@ -11,6 +11,14 @@ from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
+import database
+
+"""
+------------------------------------------------------------------------------------------------------------------------
+Constants
+------------------------------------------------------------------------------------------------------------------------
+"""
+FIRST_LETTER_TEST = "מבחן אות ראשונה"
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -25,207 +33,171 @@ class MainLayout(BoxLayout):
         # Init operations
         super(MainLayout, self).__init__(**kwargs)
         self.orientation = "vertical"
-        self.current_parent = None
+        self.cursor_id = "shas"
+        self.cursor_name = database.get_name(self.cursor_id)
+        self.cursor_parent = database.get_parent(self.cursor_id)
+        self.cursor_children_id = database.get_children(self.cursor_id)
+        self.cursor_grade = database.get_grade(self.cursor_id)
         self.size = [Window.width, Window.height]
+        self.show_item()
 
-        # Creating mishnayot, perakim etc. and defining self.shas.
-        berakhot_1_1 = Mishna("משנה א", mishnayotText.berakhot_1_1_text, self)
-        berakhot_1_2 = Mishna("משנה ב", mishnayotText.berakhot_1_2_text, self)
-        berakhot_1_3 = Mishna("משנה ג", mishnayotText.berakhot_1_3_text, self)
-        avot_4_1 = Mishna("משנה א", mishnayotText.avot_4_1_text, self)
-        berakhot_1 = Perek("פרק א", [berakhot_1_1, berakhot_1_2, berakhot_1_3], self)
-        avot_4 = Perek("פרק ד", [avot_4_1], self)
-        berakhot = Masechet("מסכת ברכות", [berakhot_1], self)
-        avot = Masechet("מסכת נזיקין", [avot_4], self)
-        zeraim = Seder("סדר זרעים", [berakhot], self)
-        nezikin = Seder("סדר נזיקין", [avot], self)
-        shas = Shas([zeraim, nezikin], self)
-
-        for child in berakhot_1.children:
-            child.parent = berakhot_1
-
-        for child in berakhot.children:
-            child.parent = berakhot
-
-        for child in zeraim.children:
-            child.parent = zeraim
-
-        for child in shas.children:
-            child.parent = shas
-
-        for child in avot_4.children:
-            child.parent = avot_4
-
-        for child in avot.children:
-            child.parent = avot
-
-        for child in nezikin.children:
-            child.parent = nezikin
-
-        for child in shas.children:
-            child.parent = shas
-
-        self.shas = shas
-
-        self.show_home_screen()
-
-    def show_item(self, item):
-
-        # clear all widgets from main layout
-        self.clear_widgets()
-
-        # top part
-        self.add_widget(TopPart(self, item))
-
-        # set a way to go back
-        self.current_parent = item  # seder/ masechet etc. where to go back to
+    def show_item(self):
 
         # current is a mishna
-        if self.current_parent.children is None:
-            self.show_mishna_tests(self.current_parent)
+        if self.cursor_children_id is None:
+            self.show_mishna_tests()
 
         # current is at least a perek
         else:
-            self.show_at_least_a_perek_children(self.current_parent)
+            self.show_at_least_a_perek_children()
 
     def show_home_screen(self):
+        pass
+        # # clear all widgets from main layout
+        # self.clear_widgets()
+        #
+        # # top part
+        # self.add_widget(TopPart(self, self.shas))
+        #
+        # # set where to go back to (None to go back)
+        # self.current_parent = None
+        #
+        # # Creating widgets for home screen setup
+        # for seder in self.shas.children:
+        #     widget = LinkWidget(self, extraFunctions.reverse_string(seder.name), seder)
+        #     widget.button.bind(on_press=lambda x, w=widget: self.show_item(w.link))
+        #     self.add_widget(widget)
+        #
+        # # Bottom rectangle
+        # self.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
+
+    def show_at_least_a_perek_children(self):
 
         # clear all widgets from main layout
         self.clear_widgets()
 
         # top part
-        self.add_widget(TopPart(self, self.shas))
-
-        # set where to go back to (None to go back)
-        self.current_parent = None
-
-        # Creating widgets for home screen setup
-        for seder in self.shas.children:
-            widget = LinkWidget(extraFunctions.reverse_string(seder.name), seder)
-            widget.button.bind(on_press=lambda x, w=widget: self.show_item(w.link))
-            self.add_widget(widget)
-
-        # Bottom rectangle
-        self.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
-
-    def show_at_least_a_perek_children(self, item):
-
-        # clear all widgets from main layout
-        self.clear_widgets()
-
-        # top part
-        self.add_widget(TopPart(self, item))
-
-        # set a way to go back
-        self.current_parent = item
+        self.add_widget(TopPart(self))
 
         widget_list = []
-        for child in self.current_parent.children:
+        for child_id in self.cursor_children_id:
             # creating widgets for all children and adding them
-            widget = LinkWidget(extraFunctions.reverse_string(child.name), child)
-            widget.button.bind(on_press=lambda x, w=widget: self.show_item(w.link))
-            # self.add_widget(widget)
+            child_name = database.get_name(child_id)
+            widget = LinkWidget(self, extraFunctions.reverse_string(child_name), child_id)
             widget_list.append(widget)
         self.add_widget(MiddlePart(widget_list))
 
         # bottom part
         self.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
 
-    def show_mishna_tests(self, mishna):
+    def show_mishna_tests(self):
 
         # clear all widgets from main layout
         self.clear_widgets()
 
         # top part
-        self.add_widget(TopPart(self, mishna))
+        self.add_widget(TopPart(self))
 
-        # set a way to go back
-        self.current_parent = mishna
-
-        # test 0 - first letter game
-        test_0_widget = LinkWidget(extraFunctions.reverse_string('מבחן אות ראשונה'), self.current_parent)
-        test_0_widget.button.bind(on_press=lambda x: self.current_parent.show_first_letter_game())
+        # test 1 - first letter game
+        test_0_widget = LinkWidget(self,
+                                   extraFunctions.reverse_string(FIRST_LETTER_TEST),
+                                   self.cursor_id,
+                                   1)
         self.add_widget(test_0_widget)
 
         # bottom part
         self.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
 
-
-class Item:
-    def __init__(self, name: str, text: str, main_layout):
-        self.name = name
-        self.grade = 0
-        self.text = text
-        self.children = None
-        self.parent = None
-        self.main_layout = main_layout
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-
-class GenericItem(Item):
-    def __init__(self, name: str, main_layout: MainLayout):
-        super().__init__(name, "", main_layout)
-
-    def set_grade(self):
-        self.grade = int(mean([child.grade for child in self.children]))
-        self.parent.set_grade()
-
-
-class Mishna(Item):
-    def __init__(self, name: str, text: str, main_layout: MainLayout):
-        super().__init__(name, text, main_layout)
-        self.test_grades = [0]  # test_0: first letter game
-        self.main_layout = main_layout
+    def update_cursor(self, new_cursor_id):
+        self.cursor_id = new_cursor_id
+        self.cursor_name = database.get_name(self.cursor_id)
+        self.cursor_parent = database.get_parent(self.cursor_id)
+        self.cursor_children_id = database.get_children(self.cursor_id)
+        self.cursor_grade = database.get_grade(self.cursor_id)
 
     def show_first_letter_game(self):
-        self.main_layout.clear_widgets()
-        self.main_layout.add_widget(TopPart(self.main_layout, self, True))
-        game = FirstLetterGameHebrewPanel(self)
-        self.main_layout.add_widget(game)
-        self.main_layout.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
+        self.clear_widgets()
+        self.add_widget(TopPart(self, True))
+        mishna_text = database.get_text(self.cursor_id)
+        game = FirstLetterGameHebrewPanel(self, self.cursor_id, mishna_text)
+        self.add_widget(game)
+        self.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
 
-    def show_tests(self):
-        self.main_layout.show_mishna_tests(self)
-
-    def set_grade(self, test_idx: int, test_grade: int):
-        self.test_grades[test_idx] = test_grade
-        self.grade = int(mean(self.test_grades))
-        self.parent.set_grade()
-
-    def refresh(self):
-        self.main_layout.show_item(self)
-
-
-class Perek(GenericItem):
-    def __init__(self, name: str, mishnayot: list[Mishna], main_layout):
-        super().__init__(name, main_layout)
-        self.children = mishnayot
-
-
-class Masechet(GenericItem):
-    def __init__(self, name: str, perakim: list[Perek], main_layout):
-        super().__init__(name, main_layout)
-        self.children = perakim
-
-
-class Seder(GenericItem):
-    def __init__(self, name: str, mesachtot: list[Masechet], main_layout):
-        super().__init__(name, main_layout)
-        self.children = mesachtot
-
-
-class Shas(GenericItem):
-    def __init__(self, sedarim: list[Seder], main_layout):
-        super().__init__('ש"ס', main_layout)
-        self.children = sedarim
-
-    def set_grade(self):
-        self.grade = mean([child.grade for child in self.children])
+# class Item:
+#     def __init__(self, name: str, text: str, main_layout):
+#         self.name = name
+#         self.grade = 0
+#         self.text = text
+#         self.children = None
+#         self.parent = None
+#         self.main_layout = main_layout
+#
+#     def __str__(self):
+#         return self.name
+#
+#     def __repr__(self):
+#         return self.name
+#
+#
+# class GenericItem(Item):
+#     def __init__(self, name: str, main_layout: MainLayout):
+#         super().__init__(name, "", main_layout)
+#
+#     def set_grade(self):
+#         self.grade = int(mean([child.grade for child in self.children]))
+#         self.parent.set_grade()
+#
+#
+# class Mishna(Item):
+#     def __init__(self, name: str, text: str, main_layout: MainLayout):
+#         super().__init__(name, text, main_layout)
+#         self.test_grades = [0]  # test_0: first letter game
+#         self.main_layout = main_layout
+#
+#     def show_first_letter_game(self):
+#         self.main_layout.clear_widgets()
+#         self.main_layout.add_widget(TopPart(self.main_layout, self, True))
+#         game = FirstLetterGameHebrewPanel(self)
+#         self.main_layout.add_widget(game)
+#         self.main_layout.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
+#
+#     def show_tests(self):
+#         self.main_layout.show_mishna_tests(self)
+#
+#     def set_grade(self, test_idx: int, test_grade: int):
+#         self.test_grades[test_idx] = test_grade
+#         self.grade = int(mean(self.test_grades))
+#         self.parent.set_grade()
+#
+#     def refresh(self):
+#         self.main_layout.show_item()
+#
+#
+# class Perek(GenericItem):
+#     def __init__(self, name: str, mishnayot: list[Mishna], main_layout):
+#         super().__init__(name, main_layout)
+#         self.children = mishnayot
+#
+#
+# class Masechet(GenericItem):
+#     def __init__(self, name: str, perakim: list[Perek], main_layout):
+#         super().__init__(name, main_layout)
+#         self.children = perakim
+#
+#
+# class Seder(GenericItem):
+#     def __init__(self, name: str, mesachtot: list[Masechet], main_layout):
+#         super().__init__(name, main_layout)
+#         self.children = mesachtot
+#
+#
+# class Shas(GenericItem):
+#     def __init__(self, sedarim: list[Seder], main_layout):
+#         super().__init__('ש"ס', main_layout)
+#         self.children = sedarim
+#
+#     def set_grade(self):
+#         self.grade = mean([child.grade for child in self.children])
 
 
 class HebrewTextInput(TextInput):
@@ -259,9 +231,11 @@ class HebrewTextInput(TextInput):
 
 
 class LinkWidget(BoxLayout):
-    def __init__(self, button_text: str, link, **kwargs):
+    def __init__(self, main_layout: MainLayout, button_text: str, item_id: str, test_num=None, **kwargs):
         super().__init__(**kwargs)
-        self.link = link  # seder/ masechet etc.
+        self.main_layout = main_layout
+        self.item_id = item_id
+        self.test_num = test_num
         self.button_text = button_text
         self.size_hint = [None, None]
         self.size = [Window.width, Window.height * 0.15]
@@ -270,7 +244,11 @@ class LinkWidget(BoxLayout):
         self.add_widget(self.icon)
 
         # Create the label
-        self.label = Label(text=f'{link.grade}%', size_hint_x=0.015)
+        if test_num is None:
+            self.item_grade = database.get_grade(item_id)
+        elif test_num == 1:
+            self.item_grade = database.get_test_1_grade(self.item_id)
+        self.label = Label(text=f'{self.item_grade}%', size_hint_x=0.015)
         self.add_widget(self.label)
 
         # Create the button
@@ -278,6 +256,7 @@ class LinkWidget(BoxLayout):
                              size_hint_x=0.3,
                              background_color=(1, 0, 0, 1),
                              font_name="Arial.ttf",
+                             on_press=self.on_button_press
                              )
         self.add_widget(self.button)
 
@@ -302,26 +281,34 @@ class LinkWidget(BoxLayout):
         else:
             self.icon.source = f'icons/{icon_2}.png'
 
+    def on_button_press(self, instance):
+        if self.test_num is None:
+            self.main_layout.update_cursor(self.item_id)
+            self.main_layout.show_item()
+        elif self.test_num == 1:
+            self.main_layout.show_first_letter_game()
+        else:
+            pass
+
 
 class TopPart(BoxLayout):
-    def __init__(self, main_layout: MainLayout, item, is_test=False, **kwargs):
+    def __init__(self, main_layout: MainLayout, is_test=False, **kwargs):
         super().__init__(**kwargs)
         self.orientation = "horizontal"
         self.main_layout = main_layout
-        self.item = item
         self.size_hint = [None, None]
         self.size = [Window.width, Window.height * 0.09]
-        if not is_test:
-            back_button = Button(text=f'back button',
-                                 size_hint_x=0.15,
-                                 on_press=lambda x: self.main_layout.show_item(self.item.parent),
-                                 )
-        else:
-            back_button = Button(text=f'back button',
-                                 size_hint_x=0.15,
-                                 on_press=lambda x: self.item.show_tests(),
-                                 )
-        middle_label = Label(text=f'{item.grade}%  :{extraFunctions.reverse_string(item.name)}',
+        self.is_test = is_test
+        self.item_id = main_layout.cursor_id
+        self.item_name = main_layout.cursor_name
+        self.item_grade = main_layout.cursor_grade
+        self.item_parent = main_layout.cursor_parent
+
+        back_button = Button(text=f'back button',
+                             size_hint_x=0.15,
+                             on_press=self.on_back_button_press,
+                             )
+        middle_label = Label(text=f'{self.item_grade}%  :{extraFunctions.reverse_string(self.item_name)}',
                              base_direction="rtl",
                              font_name="Arial.ttf",
                              halign="right",
@@ -334,7 +321,7 @@ class TopPart(BoxLayout):
                                font_size=50
                                )
 
-        if self.item.parent is not None:
+        if self.item_parent is not None:
             self.add_widget(back_button)
         else:
             self.add_widget(Label(text=f'',
@@ -345,43 +332,60 @@ class TopPart(BoxLayout):
 
     def __str__(self):
         if hasattr(self, 'item'):
-            return f'Top part, item: {self.item.name}'
+            return f'Top part, item: {self.item_name}'
         else:
             return "Top part"
 
     def __repr__(self):
         if hasattr(self, 'item'):
-            return f'Top part, item: {self.item.name}'
+            return f'Top part, item: {self.item_name}'
         else:
             return "Top part"
 
+    def on_back_button_press(self, instance):
+        if self.is_test:
+            self.main_layout.show_item()
+        else:
+            self.main_layout.update_cursor(self.item_parent)
+            self.main_layout.show_item()
+
 
 class MiddlePart(ScrollView):
-    def __init__(self, widgets: list[LinkWidget], **kwargs):
+    def __init__(self, widgets: list, **kwargs):
         super().__init__(**kwargs)
         self.widgets = widgets
-        self.layout = BoxLayout(orientation="vertical")
-        self.always_overscroll = True
+        self.scroll_x = 0
+        self.scroll_y = 1
+        self.do_scroll_x = False
+        self.do_scroll_y = True
+        self.always_overscroll = False
+        self.layout = BoxLayout(orientation="vertical", size_hint_y=None)
+
+        height = 0
         for widget in widgets:
             self.layout.add_widget(widget)
+            height += widget.height  # assuming the widgets have height attribute
 
         # bottom spacer
         bottom_spacer = Widget()
         self.layout.add_widget(bottom_spacer)
+        height += bottom_spacer.height  # assuming the bottom_spacer has height attribute
+
+        # Update the height of the layout
+        self.layout.height = height
 
         self.add_widget(self.layout)
-
     def __str__(self):
         if not hasattr(self, 'link'):
             return "Middle Part"
         else:
-            return f'Middle part, link: {self.widgets[0].link}'
+            return f'Middle part, link: {self.widgets[0].item_id}'
 
     def __repr__(self):
         if not hasattr(self, 'link'):
             return "Middle Part"
         else:
-            return f'Middle part, link: {self.widgets[0].link}'
+            return f'Middle part, link: {self.widgets[0].item_id}'
 
 
 """
@@ -392,10 +396,12 @@ FIRST LETTER GAME
 
 
 class FirstLetterGameHebrewTextInput(HebrewTextInput):  # add given mishna because it has main layout in it!
-    def __init__(self, game, given_mishna, text, next_w=None, **kwargs):
+    def __init__(self, main_layout: MainLayout, game, mishna_id, text, next_w=None, **kwargs):
         if len(text) == 0:
             raise Exception("text length is 0")
         super().__init__(**kwargs)
+        self.main_layout = main_layout
+        self.mishna_id = mishna_id
         self.hint_text = text[0]
         self.font_size = 35
         self.hint_text_color = get_color_from_hex('#0000FF')
@@ -403,7 +409,6 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):  # add given mishna becau
         self.target_text = text
         self.background_color = [0, 0, 0, 1]
         self.next = next_w
-        self.mishna = given_mishna
         self.game = game
         self.size_hint = (None, None)
         self.size = (extraFunctions.get_text_size(text, self.font_name, self.font_size)[0] + 12,
@@ -445,29 +450,20 @@ class FirstLetterGameHebrewTextInput(HebrewTextInput):  # add given mishna becau
             self.parent.parent.parent.scroll_to_widget(self.next)
         else:
             grade = int((self.game.words_right / self.game.total_words) * 100)
-            self.mishna.set_grade(0, grade)
-            self.mishna.refresh()
+            database.update_test_1(self.mishna_id, grade)
+            self.main_layout.show_item()
 
     def focus_on_widget(self):
         self.focus = True
 
 
 class FirstLetterGameHebrew(BoxLayout):
-    def __init__(self, given_mishna, scroll_view, **kwargs):
-        """
-        First game letter widget
-        :param given_mishna: given_mishna.text in hebrew that can be multiline as follows:
-        given_mishna.text = '''
-            מאימתי קורין את שמע בערבית?
-            משעה שהכהנים נכנסים לאכול בתרומתן.
-        '''
-        etc.
-        :param scroll_view: The parent scroll view.
-        :param kwargs: kwargs
-        """
+    def __init__(self, main_layout: MainLayout, mishna_id, mishna_text, scroll_view, **kwargs):
 
         # init operations
         super().__init__(orientation='vertical', **kwargs)
+        self.main_layout = main_layout
+        self.mishna_id = mishna_id
         self.scroll_view = scroll_view
         self.words_right = 0
         self.total_words = 0
@@ -478,7 +474,7 @@ class FirstLetterGameHebrew(BoxLayout):
         #    [word8, word7, word6, word5]
         # ]
         #
-        str_matrix = extraFunctions.string_hebrew_to_matrix(given_mishna.text)
+        str_matrix = extraFunctions.string_hebrew_to_matrix(mishna_text)
 
         # creating self.widgets from str_matrix
         reversed_widgets_matrix = []
@@ -489,10 +485,10 @@ class FirstLetterGameHebrew(BoxLayout):
             widgets_new_line = []
             for str_1 in line:
                 if line_counter == 0 and col_counter == 0:
-                    prev_widget = FirstLetterGameHebrewTextInput(self, given_mishna, str_1, None)
+                    prev_widget = FirstLetterGameHebrewTextInput(self.main_layout, self, mishna_id, str_1, None)  # check
                     widgets_new_line.append(prev_widget)
                 else:
-                    prev_widget = FirstLetterGameHebrewTextInput(self, given_mishna, str_1, prev_widget)
+                    prev_widget = FirstLetterGameHebrewTextInput(self.main_layout, self, mishna_id, str_1, prev_widget)
                     widgets_new_line.append(prev_widget)
                 col_counter += 1
             reversed_widgets_matrix.append(widgets_new_line)
@@ -542,10 +538,12 @@ class FirstLetterGameHebrew(BoxLayout):
 
 
 class FirstLetterGameHebrewPanel(ScrollView):
-    def __init__(self, mishna, **kwargs):
+    def __init__(self, main_layout: MainLayout, mishna_id, mishna_text: str, **kwargs):
         super(FirstLetterGameHebrewPanel, self).__init__(**kwargs)
-        self.game = FirstLetterGameHebrew(mishna, self)
-        self.mishna = mishna
+        self.game = FirstLetterGameHebrew(main_layout, mishna_id, mishna_text, self)
+        self.main_layout = main_layout
+        self.mishna_id = mishna_id
+        self.mishna_text = mishna_text
         self.add_widget(self.game)
         self.always_overscroll = True
         self.scroll_x = 1
