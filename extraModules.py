@@ -31,6 +31,7 @@ FINAL_TEST = "מבחן סוף"
 FINISH_GAME = "סיים מבחן"
 RESET = "אתחל את"
 READ_OUT_LOUD_TIME = 5
+CLOSE = "סגור"
 """
 ------------------------------------------------------------------------------------------------------------------------
 GENERAL
@@ -316,24 +317,27 @@ class TopPart(BoxLayout):
         popup_layout = BoxLayout(orientation='vertical')
 
         button_box = BoxLayout(orientation='vertical')
-        change_user_button = Button(text=extraFunctions.reverse_string("החלף משתמש"),
-                                    base_direction="rtl",
-                                    font_name="Arial.ttf",
-                                    halign="right"
-                                    )
+        change_user_button = Button(
+            text=extraFunctions.reverse_string("החלף משתמש"),
+            base_direction="rtl",
+            font_name="Arial.ttf",
+            halign="right"
+        )
 
-        reset_instance_button = Button(text=extraFunctions.reverse_string(RESET + " " + self.main_layout.cursor_name),
-                                       base_direction="rtl",
-                                       font_name="Arial.ttf",
-                                       halign="right",
-                                       on_press=self.on_press_reset_instance_button
-                                       )
+        reset_instance_button = Button(
+            text=extraFunctions.reverse_string(RESET + " " + self.main_layout.cursor_name),
+            base_direction="rtl",
+            font_name="Arial.ttf",
+            halign="right",
+            on_press=self.on_press_reset_instance_button
+        )
 
-        close_button = Button(text=extraFunctions.reverse_string("סגור"),
-                              base_direction="rtl",
-                              font_name="Arial.ttf",
-                              halign="right"
-                              )
+        close_button = Button(
+            text=extraFunctions.reverse_string(CLOSE),
+            base_direction="rtl",
+            font_name="Arial.ttf",
+            halign="right"
+        )
 
         close_button.bind(on_press=lambda x: popup.dismiss())
         button_box.add_widget(change_user_button)
@@ -353,7 +357,7 @@ class TopPart(BoxLayout):
             elapsed_time = time.time() - start_time
             remaining_time = max(5 - elapsed_time, 0)  # Calculate the remaining time to reach 5 seconds
             time.sleep(remaining_time)
-            Clock.schedule_once(lambda dt: self.main_layout.show_item())
+            Clock.schedule_once(lambda x: self.main_layout.show_item())
 
         thread = threading.Thread(target=lambda: heavy_task(None))  # Pass None or any desired value
         thread.start()

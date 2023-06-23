@@ -5,6 +5,21 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from re import compile
+import time
+
+
+def check_time_gap(timestamp):
+    if timestamp is None:
+        return 0
+    current_time = time.time()  # Get the current timestamp in seconds
+    time_gap = current_time - timestamp
+
+    if time_gap <= 30 * 24 * 60 * 60:  # 30 days in seconds
+        return 1
+    elif time_gap <= 60 * 24 * 60 * 60:  # 60 days in seconds
+        return 2
+    else:
+        return 3
 
 
 def pixels_to_relative_size(pixels, size_to_relate):
