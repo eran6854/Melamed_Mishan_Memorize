@@ -18,8 +18,8 @@ Database Operations:
 ########################################################################################################################
 """
 # setup
-conn = sqlite3.connect("database.db")
-c = conn.cursor()
+# conn = sqlite3.connect("database.db")
+# c = conn.cursor()
 
 # execution
 # ----------------------------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ c = conn.cursor()
 
 
 # close
-conn.close()
+# conn.close()
 
 """
 ########################################################################################################################
@@ -286,12 +286,12 @@ def get_test_2_grade(mishna_id):
 
 
 def get_grade(item_id):
-    children = get_children(item_id)
-    if children is None:
+    children_ids = get_children(item_id)
+    if children_ids is None:
         return get_mishna_grade(item_id)
     else:
         try:
-            return math.floor(statistics.mean([get_grade(e) for e in children]))
+            return math.floor(statistics.mean([get_grade(e) for e in children_ids]))
         # remove when everything is well-defined
         except Exception:
             return 0
@@ -321,6 +321,17 @@ def reset_all_test_2():
         reset_test_2(mishna_id)
 
 
+def reset_item(item_id):
+    children_ids = get_children(item_id)
+    if children_ids is None:
+        reset_test_0(item_id)
+        reset_test_1(item_id)
+        reset_test_2(item_id)
+    else:
+        for child_id in children_ids:
+            reset_item(child_id)
+
+
 def get_name(item_id):
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
@@ -329,7 +340,6 @@ def get_name(item_id):
     connection.close()
     return name
 
-show_row("hierarchy", "berakhot")
 
 """
 ########################################################################################################################
