@@ -6,6 +6,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from re import compile
 
+
 def pixels_to_relative_size(pixels, size_to_relate):
     if size_to_relate[0] == 0 or size_to_relate[1] == 0:
         return 0
@@ -77,7 +78,7 @@ def extract_hebrew_words(text):
     text = text.replace('\n', ' ')
 
     # Remove non-Hebrew characters and white spaces
-    hebrew_regex = re.compile(r'[\u0590-\u05FF]+')
+    hebrew_regex = compile(r'[\u0590-\u05FF]+')
     words = hebrew_regex.findall(text)
 
     return words
