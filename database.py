@@ -2,6 +2,9 @@ import sqlite3
 import math
 import datetime
 import statistics
+import time
+
+import extraFunctions
 
 """
 ########################################################################################################################
@@ -341,6 +344,124 @@ def get_name(item_id):
     return name
 
 
+def get_date(item_id):
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM dates WHERE id='{item_id}'")
+    date = cursor.fetchone()[1]
+    connection.close()
+    return date
+
+
+def get_date_check_list(item_id, list1):
+    children_ids = get_children(item_id)
+    if children_ids is None:
+        last_date = get_date(item_id)
+        if last_date is None:
+            return [None]
+        else:
+            date_check = extraFunctions.check_time_gap(last_date)
+            list1.append(date_check)
+            return [date_check]
+    else:
+        for child_id in children_ids:
+            list1.extend(get_date_check_list(child_id, list1))
+    return list1
+
+
+def get_date_check(item_id):
+    # return options:
+    # None - wasn't touched
+    # 1 - less than a month
+    # 2 - between a month and 2 months
+    # 3 - over 2 months
+    lst = list()
+    list1 = get_date_check_list(item_id, lst)
+    if None in list1:
+        return None
+    else:
+        return max(list1)
+
+
+# update_last_100_score_date_now("berakhot_1_1")
+# update_last_100_score_date_now("berakhot_1_2")
+# update_last_100_score_date_now("berakhot_1_3")
+# update_last_100_score_date_now("berakhot_1_4")
+# update_last_100_score_date_now("berakhot_1_5")
+# update_last_100_score_date_now("berakhot_2_1")
+# update_last_100_score_date_now("berakhot_2_2")
+# update_last_100_score_date_now("berakhot_2_3")
+# update_last_100_score_date_now("berakhot_2_4")
+# update_last_100_score_date_now("berakhot_2_5")
+# update_last_100_score_date_now("berakhot_2_6")
+# update_last_100_score_date_now("berakhot_2_7")
+# update_last_100_score_date_now("berakhot_2_8")
+# update_last_100_score_date_now("berakhot_3_1")
+# update_last_100_score_date_now("berakhot_3_2")
+# update_last_100_score_date_now("berakhot_3_3")
+# update_last_100_score_date_now("berakhot_3_4")
+# update_last_100_score_date_now("berakhot_3_5")
+# update_last_100_score_date_now("berakhot_3_6")
+# update_last_100_score_date_now("berakhot_4_1")
+# update_last_100_score_date_now("berakhot_4_2")
+# update_last_100_score_date_now("berakhot_4_3")
+# update_last_100_score_date_now("berakhot_4_4")
+# update_last_100_score_date_now("berakhot_4_5")
+# update_last_100_score_date_now("berakhot_4_6")
+# update_last_100_score_date_now("berakhot_4_7")
+# update_last_100_score_date_now("berakhot_5_1")
+# update_last_100_score_date_now("berakhot_5_2")
+# update_last_100_score_date_now("berakhot_5_3")
+# update_last_100_score_date_now("berakhot_5_4")
+# update_last_100_score_date_now("berakhot_5_5")
+# update_last_100_score_date_now("berakhot_6_1")
+# update_last_100_score_date_now("berakhot_6_2")
+# update_last_100_score_date_now("berakhot_6_3")
+# update_last_100_score_date_now("berakhot_6_4")
+# update_last_100_score_date_now("berakhot_6_5")
+# update_last_100_score_date_now("berakhot_6_6")
+# update_last_100_score_date_now("berakhot_6_7")
+# update_last_100_score_date_now("berakhot_6_8")
+# update_last_100_score_date_now("berakhot_7_1")
+# update_last_100_score_date_now("berakhot_7_2")
+# update_last_100_score_date_now("berakhot_7_3")
+# update_last_100_score_date_now("berakhot_7_4")
+# update_last_100_score_date_now("berakhot_7_5")
+# update_last_100_score_date_now("berakhot_8_1")
+# update_last_100_score_date_now("berakhot_8_2")
+# update_last_100_score_date_now("berakhot_8_3")
+# update_last_100_score_date_now("berakhot_8_4")
+# update_last_100_score_date_now("berakhot_8_5")
+# update_last_100_score_date_now("berakhot_8_6")
+# update_last_100_score_date_now("berakhot_8_7")
+# update_last_100_score_date_now("berakhot_8_8")
+# update_last_100_score_date_now("berakhot_9_1")
+# update_last_100_score_date_now("berakhot_9_2")
+# update_last_100_score_date_now("berakhot_9_3")
+# update_last_100_score_date_now("berakhot_9_4")
+# update_last_100_score_date_now("berakhot_9_5")
+
+# for show
+update_test_0("berakhot_1_1", 100)
+update_test_1("berakhot_1_1", 100)
+update_test_2("berakhot_1_1", 100)
+update_test_0("berakhot_1_2", 100)
+update_test_1("berakhot_1_2", 100)
+update_test_2("berakhot_1_2", 100)
+update_test_0("berakhot_1_3", 100)
+update_test_1("berakhot_1_3", 100)
+update_test_2("berakhot_1_3", 100)
+update_test_0("berakhot_1_4", 100)
+update_test_1("berakhot_1_4", 100)
+update_test_2("berakhot_1_4", 100)
+update_test_0("berakhot_1_5", 100)
+update_test_1("berakhot_1_5", 100)
+update_test_2("berakhot_1_5", 100)
+
+update_last_100_score_date("berakhot_1_1", time.time() - 30 * 24 * 60 * 60 + 800)
+update_last_100_score_date("berakhot_1_2", time.time() - 60 * 24 * 60 * 60 + 800)
+update_last_100_score_date("berakhot_1_3", time.time() - 60 * 24 * 60 * 60 - 800)
+show_all_table_rows("dates")
 """
 ########################################################################################################################
 Notes:
@@ -436,4 +557,28 @@ for line in c.fetchall():
 hierarchy:
 ('shas', None, 'zeraim, moed, nashim, nezikin, kodashim, tohorot')
 ('zeraim', 'shas', 'berakhot, peah, demai, kilayim, sheviit, terumot, maaserot, maaser_sheni, challah, orlah, bikkurim')
+"""
+
+"""
+for show:
+update_test_0("berakhot_1_1", 100)
+update_test_1("berakhot_1_1", 100)
+update_test_2("berakhot_1_1", 100)
+update_test_0("berakhot_1_2", 100)
+update_test_1("berakhot_1_2", 100)
+update_test_2("berakhot_1_2", 100)
+update_test_0("berakhot_1_3", 100)
+update_test_1("berakhot_1_3", 100)
+update_test_2("berakhot_1_3", 100)
+update_test_0("berakhot_1_4", 100)
+update_test_1("berakhot_1_4", 100)
+update_test_2("berakhot_1_4", 100)
+update_test_0("berakhot_1_5", 100)
+update_test_1("berakhot_1_5", 100)
+update_test_2("berakhot_1_5", 100)
+
+update_last_100_score_date("berakhot_1_1", time.time() - 30 * 24 * 60 * 60 + 800)
+update_last_100_score_date("berakhot_1_2", time.time() - 60 * 24 * 60 * 60 + 800)
+update_last_100_score_date("berakhot_1_3", time.time() - 60 * 24 * 60 * 60 - 800)
+show_all_table_rows("dates")
 """
