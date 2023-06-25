@@ -10,7 +10,7 @@ from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 from datetime import datetime, timedelta
-from kivy.graphics import Color, Rectangle
+from kivy.graphics import Color, Rectangle, Line
 from kivy.core.window import Window
 from kivy.uix.label import Label
 from kivy.utils import get_color_from_hex
@@ -34,8 +34,18 @@ READ_OUT_LOUD_TIME = 5
 CLOSE = "סגור"
 UNCHECK_ICON = "icons/uncheck256.png"
 CHECK_ICON = "icons/check256.png"
+MENU_ICON = "icons/menu.png"
 RED_BELL_ICON = "icons/red_bell256.png"
 ORANGE_BELL_ICON = "icons/orange_bell256.png"
+ORANGE_COLOR = "#ffa500"
+RED_COLOR = "#ff0000"
+GREEN_COLOR = "#00ff00"
+MIDDLE_BLUE_COLOR = "#002147"
+WHITE_COLOR = "#ffffff"
+BLACK_COLOR = "#000000"
+DARK_GREY_COLOR = "#2c2f33"
+LICORICE_COLOR = "#282C35"
+
 """
 ------------------------------------------------------------------------------------------------------------------------
 GENERAL
@@ -87,9 +97,6 @@ class MainLayout(BoxLayout):
             widget_list.append(widget)
         self.add_widget(MiddlePart(widget_list))
 
-        # bottom part
-        self.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
-
     def show_mishna_tests(self):
 
         # clear all widgets from main layout
@@ -120,7 +127,7 @@ class MainLayout(BoxLayout):
         self.add_widget(test_2_widget)
 
         # bottom part
-        self.add_widget(Label(text='Bottom Rectangle', size_hint_y=0.15))
+        self.add_widget(Label(text='', size_hint_y=0.15))
 
     def update_cursor(self, new_cursor_id):
         self.cursor_id = new_cursor_id
@@ -201,6 +208,15 @@ class LinkWidget(BoxLayout):
         self.button_text = button_text
         self.size_hint = [None, None]
         self.size = [Window.width, Window.height * 0.15]
+        self.padding = [10, 10, 10, 10]
+        self.spacing = 10
+
+        with self.canvas.before:
+            Color(*get_color_from_hex(LICORICE_COLOR))
+            self.rect = Rectangle(size=self.size, pos=self.pos)
+            Color(*get_color_from_hex(BLACK_COLOR))
+            self.border = Line(rectangle=(self.x, self.y, self.width, self.height), width=1)
+        self.bind(pos=self.update_graphics, size=self.update_graphics)
 
         # Create the label
         if test_num is None:
@@ -212,6 +228,12 @@ class LinkWidget(BoxLayout):
         else:
             self.item_grade = database.get_test_2_grade(self.item_id)
         self.label = Label(text=f'{self.item_grade}%', size_hint_x=0.015)
+        if self.item_grade <= 50:
+            self.label.color = get_color_from_hex(RED_COLOR)
+        elif self.item_grade <= 85:
+            self.label.color = get_color_from_hex(ORANGE_COLOR)
+        else:
+            self.label.color = get_color_from_hex(GREEN_COLOR)
 
         # Create the icon
         self.icon = Image(source=UNCHECK_ICON, size_hint_x=0.015)  # work on svg for scalability
@@ -243,7 +265,8 @@ class LinkWidget(BoxLayout):
         # Create the button
         self.button = Button(text=f'{button_text}',
                              size_hint_x=0.3,
-                             background_color=(1, 0, 0, 1),
+                             background_color=(0, 0, 0, 0),
+                             background_normal='',
                              font_name="Arial.ttf",
                              on_press=self.on_button_press
                              )
@@ -261,15 +284,6 @@ class LinkWidget(BoxLayout):
         else:
             return f'parent: {self.link}, text: {self.button_text}'
 
-    def set_percentile(self, percentile: int):
-        self.label.text = f'{percentile}%'
-
-    def set_icon(self, value: bool, icon_1: str, icon_2: str):
-        if value:
-            self.icon.source = f'icons/{icon_1}.png'
-        else:
-            self.icon.source = f'icons/{icon_2}.png'
-
     def on_button_press(self, instance):
         if self.test_num is None:
             self.main_layout.update_cursor(self.item_id)
@@ -280,6 +294,11 @@ class LinkWidget(BoxLayout):
             self.main_layout.show_first_letter_game()
         else:
             self.main_layout.show_final_test()
+
+    def update_graphics(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+        self.border.rectangle = (self.x, self.y, self.width, self.height)
 
 
 class TopPart(BoxLayout):
@@ -295,9 +314,19 @@ class TopPart(BoxLayout):
         self.item_grade = main_layout.cursor_grade
         self.item_parent = main_layout.cursor_parent
 
-        back_button = Button(text=f'back button',
+        with self.canvas.before:
+            Color(*get_color_from_hex(MIDDLE_BLUE_COLOR))
+            self.rect = Rectangle(size=self.size, pos=self.pos)
+            Color(*get_color_from_hex(BLACK_COLOR))
+            self.border = Line(rectangle=(self.x, self.y, self.width, self.height), width=1)
+        self.bind(pos=self.update_graphics, size=self.update_graphics)
+
+        back_button = Button(text=f'<',
                              size_hint_x=0.15,
                              on_press=self.on_back_button_press,
+                             background_color=(0, 0, 0, 0),
+                             background_normal='',
+                             font_size=30
                              )
         middle_label = Label(text=f'{self.item_grade}%  :{extraFunctions.reverse_string(self.item_name)}',
                              base_direction="rtl",
@@ -309,9 +338,10 @@ class TopPart(BoxLayout):
         pop_up_button = Button(text="...",
                                on_press=self.open_popup,
                                size_hint_x=0.15,
-                               font_size=50
+                               font_size=40,
+                               background_color=(0, 0, 0, 0),
+                               background_normal=''
                                )
-
         if self.item_parent is not None:
             self.add_widget(back_button)
         else:
@@ -388,6 +418,11 @@ class TopPart(BoxLayout):
 
         thread = threading.Thread(target=lambda: heavy_task(None))  # Pass None or any desired value
         thread.start()
+
+    def update_graphics(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+        self.border.rectangle = (self.x, self.y, self.width, self.height)
 
 
 class BottomPartLetterGame(BoxLayout):
