@@ -32,6 +32,10 @@ FINISH_GAME = "סיים מבחן"
 RESET = "אתחל את"
 READ_OUT_LOUD_TIME = 5
 CLOSE = "סגור"
+UNCHECK_ICON = "icons/uncheck256.png"
+CHECK_ICON = "icons/check256.png"
+RED_BELL_ICON = "icons/red_bell256.png"
+ORANGE_BELL_ICON = "icons/orange_bell256.png"
 """
 ------------------------------------------------------------------------------------------------------------------------
 GENERAL
@@ -197,9 +201,6 @@ class LinkWidget(BoxLayout):
         self.button_text = button_text
         self.size_hint = [None, None]
         self.size = [Window.width, Window.height * 0.15]
-        # Create the icon
-        self.icon = Image(source='icons/torah256.png', size_hint_x=0.015)
-        self.add_widget(self.icon)
 
         # Create the label
         if test_num is None:
@@ -211,6 +212,32 @@ class LinkWidget(BoxLayout):
         else:
             self.item_grade = database.get_test_2_grade(self.item_id)
         self.label = Label(text=f'{self.item_grade}%', size_hint_x=0.015)
+
+        # Create the icon
+        self.icon = Image(source=UNCHECK_ICON, size_hint_x=0.015)  # work on svg for scalability
+        date_check = database.get_date_check(self.item_id)
+        if test_num is None:
+            if self.item_grade == 100:
+                if date_check == 1:
+                    self.icon = Image(source=CHECK_ICON, size_hint_x=0.015)
+                elif date_check == 2:
+                    self.icon = Image(source=ORANGE_BELL_ICON, size_hint_x=0.015)
+                elif date_check == 3:
+                    self.icon = Image(source=RED_BELL_ICON, size_hint_x=0.015)
+        else:
+            if self.item_grade == 100:
+                if test_num != 2:
+                    self.icon = Image(source=CHECK_ICON, size_hint_x=0.015)
+                else:
+                    if date_check == 1:
+                        self.icon = Image(source=CHECK_ICON, size_hint_x=0.015)
+                    elif date_check == 2:
+                        self.icon = Image(source=ORANGE_BELL_ICON, size_hint_x=0.015)
+                    elif date_check == 3:
+                        self.icon = Image(source=RED_BELL_ICON, size_hint_x=0.015)
+
+        # add label and icon
+        self.add_widget(self.icon)
         self.add_widget(self.label)
 
         # Create the button

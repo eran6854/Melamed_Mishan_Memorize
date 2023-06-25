@@ -2,6 +2,7 @@ import sqlite3
 import math
 import datetime
 import statistics
+import time
 
 import extraFunctions
 
@@ -369,6 +370,11 @@ def get_date_check_list(item_id, list1):
 
 
 def get_date_check(item_id):
+    # return options:
+    # None - wasn't touched
+    # 1 - less than a month
+    # 2 - between a month and 2 months
+    # 3 - over 2 months
     lst = list()
     list1 = get_date_check_list(item_id, lst)
     if None in list1:
@@ -376,7 +382,7 @@ def get_date_check(item_id):
     else:
         return max(list1)
 
-update_last_100_score_date("berakhot_1_1", None)
+
 # update_last_100_score_date_now("berakhot_1_1")
 # update_last_100_score_date_now("berakhot_1_2")
 # update_last_100_score_date_now("berakhot_1_3")
@@ -434,7 +440,27 @@ update_last_100_score_date("berakhot_1_1", None)
 # update_last_100_score_date_now("berakhot_9_3")
 # update_last_100_score_date_now("berakhot_9_4")
 # update_last_100_score_date_now("berakhot_9_5")
-print(get_date_check("shas"))
+
+# for show
+update_test_0("berakhot_1_1", 100)
+update_test_1("berakhot_1_1", 100)
+update_test_2("berakhot_1_1", 100)
+update_test_0("berakhot_1_2", 100)
+update_test_1("berakhot_1_2", 100)
+update_test_2("berakhot_1_2", 100)
+update_test_0("berakhot_1_3", 100)
+update_test_1("berakhot_1_3", 100)
+update_test_2("berakhot_1_3", 100)
+update_test_0("berakhot_1_4", 100)
+update_test_1("berakhot_1_4", 100)
+update_test_2("berakhot_1_4", 100)
+update_test_0("berakhot_1_5", 100)
+update_test_1("berakhot_1_5", 100)
+update_test_2("berakhot_1_5", 100)
+
+update_last_100_score_date("berakhot_1_1", time.time() - 30 * 24 * 60 * 60 + 800)
+update_last_100_score_date("berakhot_1_2", time.time() - 60 * 24 * 60 * 60 + 800)
+update_last_100_score_date("berakhot_1_3", time.time() - 60 * 24 * 60 * 60 - 800)
 show_all_table_rows("dates")
 """
 ########################################################################################################################
@@ -531,4 +557,28 @@ for line in c.fetchall():
 hierarchy:
 ('shas', None, 'zeraim, moed, nashim, nezikin, kodashim, tohorot')
 ('zeraim', 'shas', 'berakhot, peah, demai, kilayim, sheviit, terumot, maaserot, maaser_sheni, challah, orlah, bikkurim')
+"""
+
+"""
+for show:
+update_test_0("berakhot_1_1", 100)
+update_test_1("berakhot_1_1", 100)
+update_test_2("berakhot_1_1", 100)
+update_test_0("berakhot_1_2", 100)
+update_test_1("berakhot_1_2", 100)
+update_test_2("berakhot_1_2", 100)
+update_test_0("berakhot_1_3", 100)
+update_test_1("berakhot_1_3", 100)
+update_test_2("berakhot_1_3", 100)
+update_test_0("berakhot_1_4", 100)
+update_test_1("berakhot_1_4", 100)
+update_test_2("berakhot_1_4", 100)
+update_test_0("berakhot_1_5", 100)
+update_test_1("berakhot_1_5", 100)
+update_test_2("berakhot_1_5", 100)
+
+update_last_100_score_date("berakhot_1_1", time.time() - 30 * 24 * 60 * 60 + 800)
+update_last_100_score_date("berakhot_1_2", time.time() - 60 * 24 * 60 * 60 + 800)
+update_last_100_score_date("berakhot_1_3", time.time() - 60 * 24 * 60 * 60 - 800)
+show_all_table_rows("dates")
 """
