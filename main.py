@@ -4,6 +4,8 @@ from extraModules import MainLayout
 
 class MyApp(App):
     def build(self):
+        # Set the title of the app
+        self.title = 'EzMemorize'
         return MainLayout()
 
 

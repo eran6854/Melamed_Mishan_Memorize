@@ -32,11 +32,12 @@ FINISH_GAME = "סיים מבחן"
 RESET = "אתחל את"
 READ_OUT_LOUD_TIME = 5
 CLOSE = "סגור"
-UNCHECK_ICON = "icons/uncheck256.png"
-CHECK_ICON = "icons/check256.png"
+UNCHECK_ICON = "icons/uncheck_96.png"
+CHECK_ICON = "icons/check_96.png"
 MENU_ICON = "icons/menu.png"
-RED_BELL_ICON = "icons/red_bell256.png"
-ORANGE_BELL_ICON = "icons/orange_bell256.png"
+BACK_BUTTON = "icons/back_button256.png"
+RED_BELL_ICON = "icons/red_bell_67.png"
+ORANGE_BELL_ICON = "icons/orange_bell_67.png"
 ORANGE_COLOR = "#ffa500"
 RED_COLOR = "#ff0000"
 GREEN_COLOR = "#00ff00"
@@ -45,6 +46,7 @@ WHITE_COLOR = "#ffffff"
 BLACK_COLOR = "#000000"
 DARK_GREY_COLOR = "#2c2f33"
 LICORICE_COLOR = "#282C35"
+SVG_TEST_ICON = "icons/bell-ringing-svgrepo-com.svg"
 
 """
 ------------------------------------------------------------------------------------------------------------------------
@@ -236,27 +238,27 @@ class LinkWidget(BoxLayout):
             self.label.color = get_color_from_hex(GREEN_COLOR)
 
         # Create the icon
-        self.icon = Image(source=UNCHECK_ICON, size_hint_x=0.015)  # work on svg for scalability
+        self.icon = Image(source=UNCHECK_ICON, size_hint_x=0.02)  # fix icon scaling with fixed size and right icon size size_hint_x=0.015
         date_check = database.get_date_check(self.item_id)
         if test_num is None:
             if self.item_grade == 100:
                 if date_check == 1:
-                    self.icon = Image(source=CHECK_ICON, size_hint_x=0.015)
+                    self.icon = Image(source=CHECK_ICON, size_hint_x=0.02)
                 elif date_check == 2:
-                    self.icon = Image(source=ORANGE_BELL_ICON, size_hint_x=0.015)
+                    self.icon = Image(source=ORANGE_BELL_ICON, size_hint_x=0.02)
                 elif date_check == 3:
-                    self.icon = Image(source=RED_BELL_ICON, size_hint_x=0.015)
+                    self.icon = Image(source=RED_BELL_ICON, size_hint_x=0.02)
         else:
             if self.item_grade == 100:
                 if test_num != 2:
-                    self.icon = Image(source=CHECK_ICON, size_hint_x=0.015)
+                    self.icon = Image(source=CHECK_ICON, size_hint_x=0.02)
                 else:
                     if date_check == 1:
-                        self.icon = Image(source=CHECK_ICON, size_hint_x=0.015)
+                        self.icon = Image(source=CHECK_ICON, size_hint_x=0.02)
                     elif date_check == 2:
-                        self.icon = Image(source=ORANGE_BELL_ICON, size_hint_x=0.015)
+                        self.icon = Image(source=ORANGE_BELL_ICON, size_hint_x=0.02)
                     elif date_check == 3:
-                        self.icon = Image(source=RED_BELL_ICON, size_hint_x=0.015)
+                        self.icon = Image(source=RED_BELL_ICON, size_hint_x=0.02)
 
         # add label and icon
         self.add_widget(self.icon)
@@ -321,12 +323,11 @@ class TopPart(BoxLayout):
             self.border = Line(rectangle=(self.x, self.y, self.width, self.height), width=1)
         self.bind(pos=self.update_graphics, size=self.update_graphics)
 
-        back_button = Button(text=f'<',
-                             size_hint_x=0.15,
+        back_button = Button(text=f'',
+                             size_hint_x=0.09,
                              on_press=self.on_back_button_press,
-                             background_color=(0, 0, 0, 0),
-                             background_normal='',
-                             font_size=30
+                             background_normal=BACK_BUTTON,
+                             font_size=30,
                              )
         middle_label = Label(text=f'{self.item_grade}%  :{extraFunctions.reverse_string(self.item_name)}',
                              base_direction="rtl",
@@ -335,12 +336,11 @@ class TopPart(BoxLayout):
                              size_hint_x=0.7,
                              font_size='25sp'
                              )
-        pop_up_button = Button(text="...",
+        pop_up_button = Button(text="",
+                               size_hint_x=0.06 ,
                                on_press=self.open_popup,
-                               size_hint_x=0.15,
                                font_size=40,
-                               background_color=(0, 0, 0, 0),
-                               background_normal=''
+                               background_normal=MENU_ICON
                                )
         if self.item_parent is not None:
             self.add_widget(back_button)
@@ -397,7 +397,7 @@ class TopPart(BoxLayout):
         )
 
         close_button.bind(on_press=lambda x: popup.dismiss())
-        button_box.add_widget(change_user_button)
+        # button_box.add_widget(change_user_button)  # need to work on
         button_box.add_widget(reset_instance_button)
         button_box.add_widget(close_button)
         popup_layout.add_widget(button_box)

@@ -50,14 +50,14 @@ Database Operations:
 
 # ----------------------------------------------------------------------------------------------------------------------
 # delete
-# c.execute("DELETE FROM names WHERE id='berakhot_1'")
+# c.execute("DELETE FROM hierarchy WHERE id='berakhot_3_2'")
 # conn.commit()
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
 # update
-# new_value = 'berakhot'
-# row_id = 'zeraim'
+# new_value = 'berakhot_1_1, berakhot_1_2, berakhot_1_3'
+# row_id = 'berakhot_1'
 #
 # # c.execute("UPDATE <table name> SET <column val to change> = ? WHERE id = ?", (new_value, row_id))
 # c.execute("UPDATE hierarchy SET children = ? WHERE id = ?", (new_value, row_id))
@@ -458,10 +458,10 @@ def get_date_check(item_id):
 # update_test_1("berakhot_1_5", 100)
 # update_test_2("berakhot_1_5", 100)
 #
-# update_last_100_score_date("berakhot_1_1", time.time() - 30 * 24 * 60 * 60 + 800)
+# update_last_100_score_date("berakhot_1_1", time.time() - 30 * 24 * 60 * 60 + 20)
 # update_last_100_score_date("berakhot_1_2", time.time() - 60 * 24 * 60 * 60 + 800)
 # update_last_100_score_date("berakhot_1_3", time.time() - 60 * 24 * 60 * 60 - 800)
-# show_all_table_rows("dates")
+show_all_table_rows("hierarchy")
 """
 ########################################################################################################################
 Notes:
@@ -581,4 +581,77 @@ update_last_100_score_date("berakhot_1_1", time.time() - 30 * 24 * 60 * 60 + 800
 update_last_100_score_date("berakhot_1_2", time.time() - 60 * 24 * 60 * 60 + 800)
 update_last_100_score_date("berakhot_1_3", time.time() - 60 * 24 * 60 * 60 - 800)
 show_all_table_rows("dates")
+"""
+
+"""
+('shas', None, 'zeraim')
+('zeraim', 'shas', 'berakhot')
+('berakhot', 'zeraim', 'berakhot_1, berakhot_2, berakhot_3, berakhot_4, berakhot_5, berakhot_6, berakhot_7, berakhot_8, berakhot_9')
+('berakhot_1', 'berakhot', 'berakhot_1_1, berakhot_1_2, berakhot_1_3, berakhot_1_4, berakhot_1_5')
+('berakhot_2', 'berakhot', 'berakhot_2_1, berakhot_2_2, berakhot_2_3, berakhot_2_4, berakhot_2_5, berakhot_2_6, berakhot_2_7, berakhot_2_8')
+('berakhot_3', 'berakhot', 'berakhot_3_1, berakhot_3_2, berakhot_3_3, berakhot_3_4, berakhot_3_5, berakhot_3_6')
+('berakhot_4', 'berakhot', 'berakhot_4_1, berakhot_4_2, berakhot_4_3, berakhot_4_4, berakhot_4_5, berakhot_4_6, berakhot_4_7')
+('berakhot_5', 'berakhot', 'berakhot_5_1, berakhot_5_2, berakhot_5_3, berakhot_5_4, berakhot_5_5')
+('berakhot_6', 'berakhot', 'berakhot_6_1, berakhot_6_2, berakhot_6_3, berakhot_6_4, berakhot_6_5, berakhot_6_6, berakhot_6_7, berakhot_6_8')
+('berakhot_7', 'berakhot', 'berakhot_7_1, berakhot_7_2, berakhot_7_3, berakhot_7_4, berakhot_7_5')
+('berakhot_8', 'berakhot', 'berakhot_8_1, berakhot_8_2, berakhot_8_3, berakhot_8_4, berakhot_8_5, berakhot_8_6, berakhot_8_7, berakhot_8_8')
+('berakhot_9', 'berakhot', 'berakhot_9_1, berakhot_9_2, berakhot_9_3, berakhot_9_4, berakhot_9_5')
+('berakhot_1_1', 'berakhot_1', None)
+('berakhot_1_2', 'berakhot_1', None)
+('berakhot_1_3', 'berakhot_1', None)
+('berakhot_1_4', 'berakhot_1', None)
+('berakhot_1_5', 'berakhot_1', None)
+('berakhot_2_1', 'berakhot_2', None)
+('berakhot_2_2', 'berakhot_2', None)
+('berakhot_2_3', 'berakhot_2', None)
+('berakhot_2_4', 'berakhot_2', None)
+('berakhot_2_5', 'berakhot_2', None)
+('berakhot_2_6', 'berakhot_2', None)
+('berakhot_2_7', 'berakhot_2', None)
+('berakhot_2_8', 'berakhot_2', None)
+('berakhot_3_1', 'berakhot_3', None)
+('berakhot_3_2', 'berakhot_3', None)
+('berakhot_3_3', 'berakhot_3', None)
+('berakhot_3_4', 'berakhot_3', None)
+('berakhot_3_5', 'berakhot_3', None)
+('berakhot_3_6', 'berakhot_3', None)
+('berakhot_4_1', 'berakhot_4', None)
+('berakhot_4_2', 'berakhot_4', None)
+('berakhot_4_3', 'berakhot_4', None)
+('berakhot_4_4', 'berakhot_4', None)
+('berakhot_4_5', 'berakhot_4', None)
+('berakhot_4_6', 'berakhot_4', None)
+('berakhot_4_7', 'berakhot_4', None)
+('berakhot_5_1', 'berakhot_5', None)
+('berakhot_5_2', 'berakhot_5', None)
+('berakhot_5_3', 'berakhot_5', None)
+('berakhot_5_4', 'berakhot_5', None)
+('berakhot_5_5', 'berakhot_5', None)
+('berakhot_6_1', 'berakhot_6', None)
+('berakhot_6_2', 'berakhot_6', None)
+('berakhot_6_3', 'berakhot_6', None)
+('berakhot_6_4', 'berakhot_6', None)
+('berakhot_6_5', 'berakhot_6', None)
+('berakhot_6_6', 'berakhot_6', None)
+('berakhot_6_7', 'berakhot_6', None)
+('berakhot_6_8', 'berakhot_6', None)
+('berakhot_7_1', 'berakhot_7', None)
+('berakhot_7_2', 'berakhot_7', None)
+('berakhot_7_3', 'berakhot_7', None)
+('berakhot_7_4', 'berakhot_7', None)
+('berakhot_7_5', 'berakhot_7', None)
+('berakhot_8_1', 'berakhot_8', None)
+('berakhot_8_2', 'berakhot_8', None)
+('berakhot_8_3', 'berakhot_8', None)
+('berakhot_8_4', 'berakhot_8', None)
+('berakhot_8_5', 'berakhot_8', None)
+('berakhot_8_6', 'berakhot_8', None)
+('berakhot_8_7', 'berakhot_8', None)
+('berakhot_8_8', 'berakhot_8', None)
+('berakhot_9_1', 'berakhot_9', None)
+('berakhot_9_2', 'berakhot_9', None)
+('berakhot_9_3', 'berakhot_9', None)
+('berakhot_9_4', 'berakhot_9', None)
+('berakhot_9_5', 'berakhot_9', None)
+
 """
